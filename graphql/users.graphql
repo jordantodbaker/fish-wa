@@ -1,0 +1,9 @@
+query Users {
+  users {
+    id
+    username
+    password
+    salt
+    phoneNumber
+  }
+}
