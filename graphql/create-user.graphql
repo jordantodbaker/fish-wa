@@ -2,8 +2,6 @@ mutation CreateUser($input: CreateUserInput!) {
   createUser(input: $input) {
     id
     username
-    password
-    salt
     phoneNumber
   }
 }

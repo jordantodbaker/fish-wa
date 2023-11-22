@@ -1,15 +1,10 @@
-import { Resolvers, TaskStatus } from "@/generated/graphql-backend";
+import { Resolvers, User, DisplayUser } from "@/generated/graphql-backend";
 import mysql from "serverless-mysql";
 import { OkPacket } from "mysql";
+import { hashPassword, validateUser, hashWithSalt } from "./utils/passwords";
 
 interface ApolloContext {
   db: mysql.ServerlessMysql;
-}
-
-interface TaskDbRow {
-  id: number;
-  title: string;
-  task_status: TaskStatus;
 }
 
 interface UserDbRow {
@@ -20,20 +15,27 @@ interface UserDbRow {
   phoneNumber: string;
 }
 
-type UserDbQueryResult = UserDbRow[];
-type TasksDbQueryResult = TaskDbRow[];
-type TaskDbQueryResult = TaskDbRow[];
+interface CountyDbRow {
+  id: number;
+  name: string;
+  shortName: string;
+}
 
-const getTaskById = async (id: number, db: mysql.ServerlessMysql) => {
-  const result = await db.query<TaskDbQueryResult>(
-    "SELECT id, title, task_status FROM tasks WHERE id = ?",
+type UserDbQueryResult = UserDbRow[];
+type CountyDbQueryResult = CountyDbRow[];
+
+const getUserById = async (id: number, db: mysql.ServerlessMysql) => {
+  const result = await db.query<UserDbQueryResult>(
+    "SELECT id, username, password, salt, phoneNumber FROM users WHERE id = ?",
     [id]
   );
   return result.length
     ? {
         id: result[0].id,
-        title: result[0].title,
-        status: result[0].task_status,
+        username: result[0].username,
+        password: result[0].password,
+        salt: result[0].salt,
+        phoneNumber: result[0].phoneNumber,
       }
     : null;
 };
@@ -53,76 +55,54 @@ export const resolvers: Resolvers<ApolloContext> = {
         phoneNumber,
       }));
     },
-    tasks: async (parent, args, context) => {
-      const { status } = args;
-      let query = "SELECT id, title, task_status FROM tasks";
-      let queryParams: string[] = [];
-      if (status) {
-        query += " WHERE task_status = ?";
-        queryParams.push(status);
-      }
-
-      const tasks = await context.db.query<TasksDbQueryResult>(
-        query,
-        queryParams
+    counties: async (parent, args, context) => {
+      const counties = await context.db.query<CountyDbQueryResult>(
+        "SELECT id, name, shortName FROM counties"
       );
       await context.db.end();
-      return tasks.map(({ id, title, task_status }) => ({
-        id,
-        title,
-        status: task_status,
-      }));
-    },
-    task: async (parent, args, context) => {
-      return await getTaskById(args.id, context.db);
+      return counties; //.map({id, name, shortName}) => ({id, name, shortName});
     },
   },
   Mutation: {
+    //
+    // TODO: Access Tokens
+    //
+    login: async (parent, args, context) => {
+      const { username, password } = args.input;
+      let message = "";
+      const query =
+        "SELECT id, username, phoneNumber, password, salt FROM users WHERE username = ?";
+      const user = await context.db.query<UserDbQueryResult>(query, [username]);
+      if (user.length > 0) {
+        const hashedInput = await hashWithSalt(password, user[0].salt);
+        const validPassword = user[0].password === hashedInput;
+        message = validPassword ? "success" : "Password is incorrect";
+      } else {
+        message = "User not found.";
+      }
+      await context.db.end();
+      const displayUser = {
+        id: user[0]?.id,
+        username: username,
+        phoneNumber: user[0]?.phoneNumber,
+        message: message,
+        accessToken: "blah",
+      };
+      console.log("Display User: ", displayUser);
+      return displayUser;
+    },
     createUser: async (parent, args, context) => {
+      const { hash, salt } = await hashPassword(args.input.password);
       const result = await context.db.query<OkPacket>(
         "INSERT INTO users (username, password, salt) VALUES (?, ?, ?)",
-        [args.input.username, "b", "c"]
-      );
-      return { id: result.insertId, username: args.input.username };
-    },
-    createTask: async (parent, args, context) => {
-      console.log("BARNABY");
-      const result = await context.db.query<OkPacket>(
-        "INSERT INTO tasks (title, task_status) VALUES (?, ?)",
-        [args.input.title, TaskStatus.Active]
+        [args.input.username, hash, salt]
       );
       return {
         id: result.insertId,
-        title: args.input.title,
-        status: TaskStatus.Active,
+        username: args.input.username,
+        phoneNumber: "",
+        message: "userCreated",
       };
-    },
-    updateTask: async (parent, args, context) => {
-      let columns = [];
-      let queryParams = [];
-
-      if (args.input.title) {
-        columns.push(" title = ?");
-        queryParams.push(args.input.title);
-      }
-      if (args.input.status) {
-        columns.push(" task_status = ?");
-        queryParams.push(args.input.status);
-      }
-      queryParams.push(args.input.id);
-      await context.db.query(
-        `UPDATE tasks SET ${columns.join(",")} WHERE id = ?`,
-        queryParams
-      );
-      return await getTaskById(args.input.id, context.db);
-    },
-    deleteTask: async (parent, args, context) => {
-      const task = await getTaskById(args.id, context.db);
-      if (!task) {
-        throw new Error("Cannot find task to delete");
-      }
-      await context.db.query("DELETE FROM tasks WHERE id = ?", [args.id]);
-      return task;
     },
   },
 };

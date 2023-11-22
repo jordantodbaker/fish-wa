@@ -1,0 +1,7 @@
+query Counties {
+  counties {
+    id
+    name
+    shortName
+  }
+}

@@ -1,22 +1,3 @@
--- DROP TABLE users;
- DROP TABLE counties;
-
-CREATE TABLE IF NOT EXISTS users (
-    id INT UNSIGNED AUTO_INCREMENT,
-    username VARCHAR(255) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    phoneNumber VARCHAR(11) NOT NULL ,
-    salt VARCHAR(255) NOT NULL,
-    PRIMARY KEY (id)
-);
-
-CREATE TABLE IF NOT EXISTS counties (
-    id INT UNSIGNED AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
-    shortName VARCHAR(4) NOT NULL,
-    PRIMARY KEY (id)
-);
-
 INSERT INTO counties (name, shortName) VALUES 
 ('Asotin', 'ASOT'), 
 ('Benton', 'BENT'), 

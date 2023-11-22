@@ -1,52 +1,47 @@
 import { gql } from "@apollo/client";
 
 export const typeDefs = gql`
-  enum TaskStatus {
-    active
-    completed
-  }
-
-  type Task {
-    id: Int!
-    title: String!
-    status: TaskStatus!
-  }
-
   type User {
     id: Int!
     username: String!
-    phoneNumber: String
+    phoneNumber: String!
     password: String!
     salt: String!
-    hash: String!
-    iterations: Int!
+  }
+
+  type County {
+    id: Int!
+    name: String!
+    shortName: String!
+  }
+
+  type DisplayUser {
+    id: Int
+    username: String!
+    phoneNumber: String!
+    message: String!
+    accessToken: String
+  }
+
+  input UserLoginInput {
+    username: String!
+    password: String!
   }
 
   type Query {
     users: [User!]!
-    tasks(status: TaskStatus): [Task!]!
-    task(id: Int!): Task
-  }
-
-  input CreateTaskInput {
-    title: String!
+    counties: [County!]!
   }
 
   input CreateUserInput {
     username: String!
     password: String!
-  }
-
-  input UpdateTaskInput {
-    id: Int!
-    title: String
-    status: TaskStatus
+    phoneNumber: String!
+    salt: String!
   }
 
   type Mutation {
-    createUser(input: CreateUserInput!): User
-    createTask(input: CreateTaskInput!): Task
-    updateTask(input: UpdateTaskInput!): Task
-    deleteTask(id: Int!): Task
+    createUser(input: CreateUserInput!): DisplayUser
+    login(input: UserLoginInput!): DisplayUser
   }
 `;
