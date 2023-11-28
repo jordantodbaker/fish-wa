@@ -20,6 +20,7 @@ export type Scalars = {
 export type County = {
   __typename?: 'County';
   id: Scalars['Int']['output'];
+  lakes: Array<Lake>;
   name: Scalars['String']['output'];
   shortName: Scalars['String']['output'];
 };
@@ -38,6 +39,12 @@ export type DisplayUser = {
   message: Scalars['String']['output'];
   phoneNumber: Scalars['String']['output'];
   username: Scalars['String']['output'];
+};
+
+export type Lake = {
+  __typename?: 'Lake';
+  id: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type Mutation = {
@@ -79,7 +86,7 @@ export type UserLoginInput = {
 export type CountiesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type CountiesQuery = { __typename?: 'Query', counties: Array<{ __typename?: 'County', id: number, name: string, shortName: string }> };
+export type CountiesQuery = { __typename?: 'Query', counties: Array<{ __typename?: 'County', id: number, name: string, shortName: string, lakes: Array<{ __typename?: 'Lake', id: number, name: string }> }> };
 
 export type CreateUserMutationVariables = Exact<{
   input: CreateUserInput;
@@ -107,6 +114,10 @@ export const CountiesDocument = gql`
     id
     name
     shortName
+    lakes {
+      id
+      name
+    }
   }
 }
     `;

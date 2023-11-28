@@ -1,5 +1,6 @@
--- DROP TABLE users;
- DROP TABLE counties;
+ --DROP TABLE users;
+ --DROP TABLE lakes;
+ --DROP TABLE counties;
 
 CREATE TABLE IF NOT EXISTS users (
     id INT UNSIGNED AUTO_INCREMENT,
@@ -23,6 +24,7 @@ INSERT INTO counties (name, shortName) VALUES
 ('Chelan', 'CHEL'),
 ('Clallam', 'CLAL'),
 ('Clark', 'CLAR'),
+('Columbia', 'COLU'),
 ('Cowlitz', 'COWL'),
 ('Douglas', 'DOUG'),
 ('Ferry', 'FERR'),
@@ -53,3 +55,11 @@ INSERT INTO counties (name, shortName) VALUES
 ('Whatcom', 'WHAT'),
 ('Whitman', 'WHIT'),
 ('Yakima', 'YAKI');
+
+CREATE TABLE IF NOT EXISTS lakes (
+    id INT UNSIGNED AUTO_INCREMENT,
+    countyId INT UNSIGNED NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (countyId) REFERENCES counties(id)
+);

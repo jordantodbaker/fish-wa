@@ -3,5 +3,9 @@ query Counties {
     id
     name
     shortName
+    lakes {
+      id
+      name
+    }
   }
 }

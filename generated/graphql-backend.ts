@@ -19,6 +19,7 @@ export type Scalars = {
 export type County = {
   __typename?: 'County';
   id: Scalars['Int']['output'];
+  lakes: Array<Lake>;
   name: Scalars['String']['output'];
   shortName: Scalars['String']['output'];
 };
@@ -37,6 +38,12 @@ export type DisplayUser = {
   message: Scalars['String']['output'];
   phoneNumber: Scalars['String']['output'];
   username: Scalars['String']['output'];
+};
+
+export type Lake = {
+  __typename?: 'Lake';
+  id: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type Mutation = {
@@ -151,6 +158,7 @@ export type ResolversTypes = {
   CreateUserInput: CreateUserInput;
   DisplayUser: ResolverTypeWrapper<DisplayUser>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  Lake: ResolverTypeWrapper<Lake>;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
@@ -165,6 +173,7 @@ export type ResolversParentTypes = {
   CreateUserInput: CreateUserInput;
   DisplayUser: DisplayUser;
   Int: Scalars['Int']['output'];
+  Lake: Lake;
   Mutation: {};
   Query: {};
   String: Scalars['String']['output'];
@@ -174,6 +183,7 @@ export type ResolversParentTypes = {
 
 export type CountyResolvers<ContextType = any, ParentType extends ResolversParentTypes['County'] = ResolversParentTypes['County']> = {
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lakes?: Resolver<Array<ResolversTypes['Lake']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   shortName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -185,6 +195,12 @@ export type DisplayUserResolvers<ContextType = any, ParentType extends Resolvers
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phoneNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type LakeResolvers<ContextType = any, ParentType extends ResolversParentTypes['Lake'] = ResolversParentTypes['Lake']> = {
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -210,6 +226,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
 export type Resolvers<ContextType = any> = {
   County?: CountyResolvers<ContextType>;
   DisplayUser?: DisplayUserResolvers<ContextType>;
+  Lake?: LakeResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   User?: UserResolvers<ContextType>;

@@ -15,10 +15,16 @@ interface UserDbRow {
   phoneNumber: string;
 }
 
+type Lake = {
+  name: String;
+};
+
 interface CountyDbRow {
   id: number;
   name: string;
   shortName: string;
+  lakeName: string;
+  lakeId: string;
 }
 
 type UserDbQueryResult = UserDbRow[];
@@ -57,10 +63,30 @@ export const resolvers: Resolvers<ApolloContext> = {
     },
     counties: async (parent, args, context) => {
       const counties = await context.db.query<CountyDbQueryResult>(
-        "SELECT id, name, shortName FROM counties"
+        "SELECT c.id, c.name, c.shortName, l.name as lakeName, l.id as lakeId FROM counties c INNER JOIN lakes l ON l.countyId = c.id"
       );
       await context.db.end();
-      return counties; //.map({id, name, shortName}) => ({id, name, shortName});
+      let lakes = [] as any;
+      let prevCounty = counties[0];
+      const result = counties.reduce((acc, county) => {
+        if (typeof county.id !== "undefined") {
+          if (prevCounty.id != county.id) {
+            acc.push({
+              id: prevCounty.id || "",
+              name: prevCounty.name,
+              shortName: prevCounty.shortName,
+              lakes: lakes,
+            });
+            lakes = [];
+          } else {
+            lakes.push({ name: county.lakeName, id: county.lakeId });
+          }
+          prevCounty = county;
+        }
+        return acc;
+      }, [] as any);
+
+      return result;
     },
   },
   Mutation: {

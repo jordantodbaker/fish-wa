@@ -9,10 +9,16 @@ export const typeDefs = gql`
     salt: String!
   }
 
+  type Lake {
+    id: Int!
+    name: String!
+  }
+
   type County {
     id: Int!
     name: String!
     shortName: String!
+    lakes: [Lake!]!
   }
 
   type DisplayUser {
