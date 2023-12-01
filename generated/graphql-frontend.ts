@@ -36,6 +36,8 @@ export type DisplayUser = {
   __typename?: 'DisplayUser';
   accessToken?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['Int']['output']>;
+  lakes: Array<Maybe<Scalars['Int']['output']>>;
+  lastLogin?: Maybe<Scalars['String']['output']>;
   message: Scalars['String']['output'];
   phoneNumber: Scalars['String']['output'];
   username: Scalars['String']['output'];
@@ -44,13 +46,14 @@ export type DisplayUser = {
 export type Lake = {
   __typename?: 'Lake';
   id: Scalars['Int']['output'];
-  name: Scalars['String']['output'];
+  name?: Maybe<Scalars['String']['output']>;
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
   createUser?: Maybe<DisplayUser>;
   login?: Maybe<DisplayUser>;
+  updateUserLakes?: Maybe<UserLakes>;
 };
 
 
@@ -63,19 +66,43 @@ export type MutationLoginArgs = {
   input: UserLoginInput;
 };
 
+
+export type MutationUpdateUserLakesArgs = {
+  input: UpdateUserLakesInput;
+};
+
 export type Query = {
   __typename?: 'Query';
   counties: Array<County>;
+  user?: Maybe<User>;
   users: Array<User>;
+};
+
+
+export type QueryUserArgs = {
+  id: Scalars['Int']['input'];
+};
+
+export type UpdateUserLakesInput = {
+  lakeIds: Array<InputMaybe<Scalars['Int']['input']>>;
+  userId: Scalars['Int']['input'];
 };
 
 export type User = {
   __typename?: 'User';
   id: Scalars['Int']['output'];
+  lakes: Array<Maybe<Scalars['Int']['output']>>;
+  lastLogin?: Maybe<Scalars['String']['output']>;
+  lastNotification?: Maybe<Scalars['String']['output']>;
   password: Scalars['String']['output'];
   phoneNumber: Scalars['String']['output'];
   salt: Scalars['String']['output'];
   username: Scalars['String']['output'];
+};
+
+export type UserLakes = {
+  __typename?: 'UserLakes';
+  userLakes: Array<Maybe<Scalars['Int']['output']>>;
 };
 
 export type UserLoginInput = {
@@ -86,7 +113,7 @@ export type UserLoginInput = {
 export type CountiesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type CountiesQuery = { __typename?: 'Query', counties: Array<{ __typename?: 'County', id: number, name: string, shortName: string, lakes: Array<{ __typename?: 'Lake', id: number, name: string }> }> };
+export type CountiesQuery = { __typename?: 'Query', counties: Array<{ __typename?: 'County', id: number, name: string, shortName: string, lakes: Array<{ __typename?: 'Lake', id: number, name?: string | null }> }> };
 
 export type CreateUserMutationVariables = Exact<{
   input: CreateUserInput;
@@ -101,6 +128,20 @@ export type LogInMutationVariables = Exact<{
 
 
 export type LogInMutation = { __typename?: 'Mutation', login?: { __typename?: 'DisplayUser', id?: number | null, username: string, phoneNumber: string, message: string, accessToken?: string | null } | null };
+
+export type UpdateUserLakesMutationVariables = Exact<{
+  input: UpdateUserLakesInput;
+}>;
+
+
+export type UpdateUserLakesMutation = { __typename?: 'Mutation', updateUserLakes?: { __typename?: 'UserLakes', userLakes: Array<number | null> } | null };
+
+export type UserQueryVariables = Exact<{
+  id: Scalars['Int']['input'];
+}>;
+
+
+export type UserQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: number, username: string, phoneNumber: string, lastLogin?: string | null, lastNotification?: string | null, lakes: Array<number | null> } | null };
 
 export type UsersQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -225,6 +266,84 @@ export function useLogInMutation(baseOptions?: Apollo.MutationHookOptions<LogInM
 export type LogInMutationHookResult = ReturnType<typeof useLogInMutation>;
 export type LogInMutationResult = Apollo.MutationResult<LogInMutation>;
 export type LogInMutationOptions = Apollo.BaseMutationOptions<LogInMutation, LogInMutationVariables>;
+export const UpdateUserLakesDocument = gql`
+    mutation UpdateUserLakes($input: UpdateUserLakesInput!) {
+  updateUserLakes(input: $input) {
+    userLakes
+  }
+}
+    `;
+export type UpdateUserLakesMutationFn = Apollo.MutationFunction<UpdateUserLakesMutation, UpdateUserLakesMutationVariables>;
+
+/**
+ * __useUpdateUserLakesMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserLakesMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserLakesMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserLakesMutation, { data, loading, error }] = useUpdateUserLakesMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateUserLakesMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserLakesMutation, UpdateUserLakesMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateUserLakesMutation, UpdateUserLakesMutationVariables>(UpdateUserLakesDocument, options);
+      }
+export type UpdateUserLakesMutationHookResult = ReturnType<typeof useUpdateUserLakesMutation>;
+export type UpdateUserLakesMutationResult = Apollo.MutationResult<UpdateUserLakesMutation>;
+export type UpdateUserLakesMutationOptions = Apollo.BaseMutationOptions<UpdateUserLakesMutation, UpdateUserLakesMutationVariables>;
+export const UserDocument = gql`
+    query User($id: Int!) {
+  user(id: $id) {
+    id
+    username
+    phoneNumber
+    lastLogin
+    lastNotification
+    lakes
+  }
+}
+    `;
+
+/**
+ * __useUserQuery__
+ *
+ * To run a query within a React component, call `useUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useUserQuery(baseOptions: Apollo.QueryHookOptions<UserQuery, UserQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<UserQuery, UserQueryVariables>(UserDocument, options);
+      }
+export function useUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserQuery, UserQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<UserQuery, UserQueryVariables>(UserDocument, options);
+        }
+export function useUserSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<UserQuery, UserQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<UserQuery, UserQueryVariables>(UserDocument, options);
+        }
+export type UserQueryHookResult = ReturnType<typeof useUserQuery>;
+export type UserLazyQueryHookResult = ReturnType<typeof useUserLazyQuery>;
+export type UserSuspenseQueryHookResult = ReturnType<typeof useUserSuspenseQuery>;
+export type UserQueryResult = Apollo.QueryResult<UserQuery, UserQueryVariables>;
 export const UsersDocument = gql`
     query Users {
   users {

@@ -28,7 +28,10 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "backend/getAllLakes.js",
-    "backend/getAllLakes.js"
+    "backend/getAllLakes.js",
+    "backend/**/*.ts",
+    "lib/sms-provider.js",
+    "backend/utils/lake-scraping.js"
   ],
   "exclude": ["node_modules"]
 }

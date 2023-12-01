@@ -7,11 +7,14 @@ export const typeDefs = gql`
     phoneNumber: String!
     password: String!
     salt: String!
+    lastLogin: String
+    lastNotification: String
+    lakes: [Int]!
   }
 
   type Lake {
     id: Int!
-    name: String!
+    name: String
   }
 
   type County {
@@ -27,6 +30,8 @@ export const typeDefs = gql`
     phoneNumber: String!
     message: String!
     accessToken: String
+    lastLogin: String
+    lakes: [Int]!
   }
 
   input UserLoginInput {
@@ -34,7 +39,12 @@ export const typeDefs = gql`
     password: String!
   }
 
+  type UserLakes {
+    userLakes: [Int]!
+  }
+
   type Query {
+    user(id: Int!): User
     users: [User!]!
     counties: [County!]!
   }
@@ -46,8 +56,14 @@ export const typeDefs = gql`
     salt: String!
   }
 
+  input UpdateUserLakesInput {
+    userId: Int!
+    lakeIds: [Int]!
+  }
+
   type Mutation {
     createUser(input: CreateUserInput!): DisplayUser
     login(input: UserLoginInput!): DisplayUser
+    updateUserLakes(input: UpdateUserLakesInput!): UserLakes
   }
 `;

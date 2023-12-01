@@ -1,25 +1,41 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useCountiesQuery } from "../generated/graphql-frontend";
+import { County, useCountiesQuery } from "../generated/graphql-frontend";
 import { NextUIProvider } from "@nextui-org/react";
 import LakesAccordion from "@/components/LakesAccordion";
+import Link from "next/link";
 
 export default function Home() {
   const router = useRouter();
-  //const accessToken = localStorage.getItem("accessToken");
-  const { data } = useCountiesQuery();
-  const counties = data?.counties;
-  console.log(counties);
-  // if (!accessToken) {
-  //   router.push("/login");
-  // }
-  return (
+
+  const [userId, setUserId] = useState("")!;
+
+  const { data, loading } = useCountiesQuery();
+  const counties = data?.counties as [County];
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+    const userId = localStorage.getItem("userId");
+    setUserId(userId as any);
+    if (!accessToken) {
+      router.push("/login");
+    }
+  }, []);
+
+  return loading ? (
+    <>Loading...</>
+  ) : counties ? (
     <NextUIProvider>
       <main className="flex min-h-screen flex-col items-center p-24">
         <div>Welcome</div>
-        <LakesAccordion counties={counties} />
+        <Link href={{ pathname: "/account", query: { id: userId } }}>
+          Account
+        </Link>
+        <LakesAccordion counties={counties} userId={parseInt(userId)} />
       </main>
     </NextUIProvider>
+  ) : (
+    <>Error</>
   );
 }

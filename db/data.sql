@@ -4,6 +4,7 @@ INSERT INTO counties (name, shortName) VALUES
 ('Chelan', 'CHEL'),
 ('Clallam', 'CLAL'),
 ('Clark', 'CLAR'),
+('Columbia', 'COLU'),
 ('Cowlitz', 'COWL'),
 ('Douglas', 'DOUG'),
 ('Ferry', 'FERR'),

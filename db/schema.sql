@@ -1,6 +1,9 @@
- --DROP TABLE users;
- --DROP TABLE lakes;
- --DROP TABLE counties;
+
+-- DROP TABLE usersLakes;
+-- DROP TABLE stockingReport;
+-- DROP TABLE lakes;
+-- DROP TABLE counties;
+-- DROP TABLE users;
 
 CREATE TABLE IF NOT EXISTS users (
     id INT UNSIGNED AUTO_INCREMENT,
@@ -8,6 +11,8 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     phoneNumber VARCHAR(11) NOT NULL ,
     salt VARCHAR(255) NOT NULL,
+    lastLogin DATETIME,
+    lastNotification DATETIME,
     PRIMARY KEY (id)
 );
 
@@ -18,48 +23,29 @@ CREATE TABLE IF NOT EXISTS counties (
     PRIMARY KEY (id)
 );
 
-INSERT INTO counties (name, shortName) VALUES 
-('Asotin', 'ASOT'), 
-('Benton', 'BENT'), 
-('Chelan', 'CHEL'),
-('Clallam', 'CLAL'),
-('Clark', 'CLAR'),
-('Columbia', 'COLU'),
-('Cowlitz', 'COWL'),
-('Douglas', 'DOUG'),
-('Ferry', 'FERR'),
-('Franklin', 'FRAN'),
-('Grant', 'GRAN'),
-('Grays Harbor', 'GRAY'),
-('Island', 'ISLA'),
-('Jefferson', 'JEFF'),
-('King', 'KING'),
-('Kitsap', 'KITS'),
-('Kittitas', 'KITT'),
-('Klickitat', 'KLIC'),
-('Lewis', 'LEWI'),
-('Lincoln', 'LINC'),
-('Mason', 'MASO'),
-('Okanogan', 'OKAN'),
-('Pacific', 'PACI'),
-('Pend Oreille', 'PEND'),
-('Pierce', 'PIER'),
-('San Juan', 'SAN'),
-('Skagit', 'SKAG'),
-('Skamania', 'SKAM'),
-('Snohomish', 'SNOH'),
-('Spokane', 'SPOK'),
-('Stevens', 'STEV'),
-('Thurston', 'THUR'),
-('Walla Walla', 'WALL'),
-('Whatcom', 'WHAT'),
-('Whitman', 'WHIT'),
-('Yakima', 'YAKI');
-
 CREATE TABLE IF NOT EXISTS lakes (
     id INT UNSIGNED AUTO_INCREMENT,
     countyId INT UNSIGNED NOT NULL,
     name VARCHAR(255) NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (countyId) REFERENCES counties(id)
+);
+
+CREATE TABLE IF NOT EXISTS usersLakes (
+    userId INT UNSIGNED NOT NULL,
+    lakeId INT UNSIGNED NOT NULL,
+    FOREIGN KEY (userId) REFERENCES users(id),
+    FOREIGN KEY (lakeId) REFERENCES lakes(id)
+);
+
+CREATE TABLE IF NOT EXISTS stockingReport (
+    id INT UNSIGNED AUTO_INCREMENT,
+    lakeId INT UNSIGNED NOT NULL,
+    date DATETIME NOT NULL,
+    number INT NOT NULL,
+    size FLOAT NOT NULL,
+    species VARCHAR(32),
+    notes TEXT,
+    PRIMARY KEY (id),
+    FOREIGN KEY (lakeId) REFERENCES lakes(id)
 );

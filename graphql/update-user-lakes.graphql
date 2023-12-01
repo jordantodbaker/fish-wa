@@ -1,0 +1,5 @@
+mutation UpdateUserLakes($input: UpdateUserLakesInput!) {
+  updateUserLakes(input: $input) {
+    userLakes
+  }
+}
