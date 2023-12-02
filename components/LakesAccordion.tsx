@@ -3,36 +3,44 @@ import React, { useState, useEffect } from "react";
 import { Accordion, AccordionItem, Button } from "@nextui-org/react";
 import {
   County,
+  User,
   useUpdateUserLakesMutation,
-  useUserQuery,
 } from "@/generated/graphql-frontend";
 import { Listbox, ListboxItem } from "@nextui-org/react";
 
 interface Props {
-  userId: number;
   counties: [County];
+  user: User;
+  setUser: () => void;
 }
 
-const LakesAccordion: React.FC<Props> = ({ counties, userId }) => {
+const LakesAccordion: React.FC<Props> = ({ counties, user, setUser }) => {
   const [updateUserLakes, { data, error, loading }] =
     useUpdateUserLakesMutation();
 
-  const { data: userLakes, loading: userLoading } = useUserQuery({
-    variables: { id: userId },
-  });
+  console.log("User in accordion", user);
 
   const [selectedKeys, setSelectedKeys] = useState(
-    new Set([userLakes?.user?.lakes].map((lake) => `${lake}`))
+    new Set([user.lakes].map((lake) => `${lake}`))
   );
 
   const handleSubmit = async () => {
-    if (userId) {
+    if (user.id) {
       const lakeIds = Array.from(selectedKeys)
         .map((key) => parseInt(key))
         .filter((n) => n);
       try {
+        setUser((prevUser) => {
+          return {
+            ...prevUser,
+            lakes: lakeIds,
+            stockingReports: prevUser.stockingReports.filter((report) =>
+              lakeIds.includes(report.lakeId)
+            ),
+          };
+        });
         await updateUserLakes({
-          variables: { input: { userId, lakeIds } },
+          variables: { input: { userId: user.id, lakeIds } },
         });
       } catch (e) {
         console.log(e);
@@ -41,13 +49,11 @@ const LakesAccordion: React.FC<Props> = ({ counties, userId }) => {
   };
 
   useEffect(() => {
-    if (userLakes) {
-      const selectedLakes = userLakes.user.lakes.map((lake) => `${lake}`);
+    if (user.lakes) {
+      const selectedLakes = user.lakes.map((lake) => `${lake}`);
       setSelectedKeys(selectedLakes);
     }
-  }, [userLakes]);
-
-  console.log("user lakes keys: ", selectedKeys);
+  }, [user.lakes]);
 
   return (
     <>

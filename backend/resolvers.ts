@@ -14,11 +14,16 @@ interface ApolloContext {
 
 interface UserDbRow {
   id: number;
-  username: string;
+  email: string;
   password: string;
   salt: string;
   phoneNumber: string;
   lakeId: number;
+  name: string;
+  date: string;
+  number: number;
+  species: string;
+  size: number;
 }
 
 type Lake = {
@@ -36,49 +41,54 @@ interface CountyDbRow {
 type UserDbQueryResult = UserDbRow[];
 type CountyDbQueryResult = CountyDbRow[];
 
-const getUserById = async (id: number, db: mysql.ServerlessMysql) => {
-  const result = await db.query<UserDbQueryResult>(
-    "SELECT id, username, password, salt, phoneNumber FROM users WHERE id = ?",
-    [id]
-  );
-  return result.length
-    ? {
-        id: result[0].id,
-        username: result[0].username,
-        password: result[0].password,
-        salt: result[0].salt,
-        phoneNumber: result[0].phoneNumber,
-      }
-    : null;
-};
-
 export const resolvers: Resolvers<ApolloContext> = {
   Query: {
-    users: async (parent, args, context) => {
-      let query = "SELECT id, username, password, salt, phoneNumber FROM users";
-
-      const users = await context.db.query<UserDbQueryResult>(query);
-      await context.db.end();
-      return users.map(({ id, username, password, salt, phoneNumber }) => ({
-        id,
-        username,
-        password,
-        salt,
-        phoneNumber,
-      }));
-    },
     user: async (parent, args, context) => {
-      console.log("WE IN HERE");
-      let query =
-        "SELECT u.id, u.username, u.phoneNumber, ul.lakeId FROM users u LEFT JOIN usersLakes ul ON ul.userId = u.id WHERE u.id = ? ";
+      const { email } = args;
 
-      const result = await context.db.query<UserDbQueryResult>(query, args.id);
+      let query = `SELECT u.id, u.email, u.phoneNumber, ul.lakeId, l.name, sr.date, sr.number, sr.species, sr.size 
+           FROM users u 
+      LEFT JOIN usersLakes ul ON ul.userId  = u.id 
+      LEFT JOIN  lakes l ON l.id = ul.lakeId
+      LEFT JOIN stockingReport sr ON sr.lakeId = l.id WHERE u.email = ? `;
+
+      let result = await context.db.query<UserDbQueryResult>(query, email);
+      if (result.length === 0) {
+        await context.db.query(
+          "INSERT INTO users (email, lastLogin, lastNotification) VALUES (?, NOW(), NOW())",
+          [email]
+        );
+        result = await context.db.query<UserDbQueryResult>(query, email);
+      }
+      // console.log("user 123123: ", { result });
       const lakeIds = result.map((user) => user.lakeId);
+      const lakes = result.map((user) => {
+        return { id: user.lakeId, name: user.name };
+      });
+      console.log({ lakeIds });
+      console.log({ lakes });
+      const stockingReports = result
+        .map((user) => {
+          if (user.name) {
+            return {
+              lakeId: user.lakeId,
+              name: user.name,
+              date: user.date,
+              number: user.number,
+              species: user.species,
+              size: user.size,
+            };
+          }
+        })
+        .filter((n) => n && n.date);
+      console.log({ result });
       return {
         id: result[0].id,
-        username: result[0].username,
+        email: result[0].email,
         phoneNumber: result[0].phoneNumber,
-        lakes: lakeIds,
+        lakeIds: lakeIds,
+        lakes: lakes,
+        stockingReports,
       };
     },
     counties: async (parent, args, context) => {
@@ -119,46 +129,14 @@ export const resolvers: Resolvers<ApolloContext> = {
     },
   },
   Mutation: {
-    //
-    // TODO: Access Tokens
-    //
-    login: async (parent, args, context) => {
-      const { username, password } = args.input;
-      let message = "";
-      const query =
-        "SELECT id, username, phoneNumber, password, salt FROM users WHERE username = ?";
-      const user = await context.db.query<UserDbQueryResult>(query, [username]);
-      if (user.length > 0) {
-        const hashedInput = await hashWithSalt(password, user[0].salt);
-        const validPassword = user[0].password === hashedInput;
-        message = validPassword ? "success" : "Password is incorrect";
-        if (validPassword) {
-          context.db.query("UPDATE users SET lastLogin = NOW() WHERE id = ?", [
-            user[0].id,
-          ]);
-        }
-      } else {
-        message = "User not found.";
-      }
-      await context.db.end();
-      const displayUser = {
-        id: user[0]?.id,
-        username: username,
-        phoneNumber: user[0]?.phoneNumber,
-        message: message,
-        accessToken: "blah",
-      };
-      return displayUser;
-    },
     createUser: async (parent, args, context) => {
-      const { hash, salt } = await hashPassword(args.input.password);
       const result = await context.db.query<OkPacket>(
-        "INSERT INTO users (username, phoneNumber, password, salt, lastNotification) VALUES (?, ?, ?, ?, NOW())",
-        [args.input.username, args.input.phoneNumber, hash, salt]
+        "INSERT INTO users (email, phoneNumber, lastNotification) VALUES (?, ?, ?, ?, NOW())",
+        [args.input.email, args.input.phoneNumber]
       );
       return {
         id: result.insertId,
-        username: args.input.username,
+        email: args.input.email,
         phoneNumber: "",
         message: "userCreated",
       };

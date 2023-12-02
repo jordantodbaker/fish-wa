@@ -1,9 +1,0 @@
-mutation LogIn($input: UserLoginInput!) {
-  login(input: $input) {
-    id
-    username
-    phoneNumber
-    message
-    accessToken
-  }
-}

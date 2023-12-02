@@ -25,21 +25,23 @@ export type County = {
 };
 
 export type CreateUserInput = {
-  password: Scalars['String']['input'];
-  phoneNumber: Scalars['String']['input'];
-  salt: Scalars['String']['input'];
-  username: Scalars['String']['input'];
+  email: Scalars['String']['input'];
+  phoneNumber?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type DisplayUser = {
   __typename?: 'DisplayUser';
   accessToken?: Maybe<Scalars['String']['output']>;
+  email: Scalars['String']['output'];
   id?: Maybe<Scalars['Int']['output']>;
-  lakes: Array<Maybe<Scalars['Int']['output']>>;
+  lakeIds?: Maybe<Array<Maybe<Scalars['Int']['output']>>>;
+  lakes?: Maybe<Array<Maybe<Lake>>>;
   lastLogin?: Maybe<Scalars['String']['output']>;
   message: Scalars['String']['output'];
-  phoneNumber: Scalars['String']['output'];
-  username: Scalars['String']['output'];
+  phoneNumber?: Maybe<Scalars['String']['output']>;
+  sendEmail?: Maybe<Scalars['Boolean']['output']>;
+  sendText?: Maybe<Scalars['Boolean']['output']>;
+  stockingReports?: Maybe<Array<Maybe<StockingReport>>>;
 };
 
 export type Lake = {
@@ -51,18 +53,12 @@ export type Lake = {
 export type Mutation = {
   __typename?: 'Mutation';
   createUser?: Maybe<DisplayUser>;
-  login?: Maybe<DisplayUser>;
   updateUserLakes?: Maybe<UserLakes>;
 };
 
 
 export type MutationCreateUserArgs = {
   input: CreateUserInput;
-};
-
-
-export type MutationLoginArgs = {
-  input: UserLoginInput;
 };
 
 
@@ -74,12 +70,21 @@ export type Query = {
   __typename?: 'Query';
   counties: Array<County>;
   user?: Maybe<User>;
-  users: Array<User>;
 };
 
 
 export type QueryUserArgs = {
-  id: Scalars['Int']['input'];
+  email: Scalars['String']['input'];
+};
+
+export type StockingReport = {
+  __typename?: 'StockingReport';
+  date?: Maybe<Scalars['String']['output']>;
+  lakeId?: Maybe<Scalars['Int']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  number?: Maybe<Scalars['Int']['output']>;
+  size?: Maybe<Scalars['Float']['output']>;
+  species?: Maybe<Scalars['String']['output']>;
 };
 
 export type UpdateUserLakesInput = {
@@ -89,24 +94,21 @@ export type UpdateUserLakesInput = {
 
 export type User = {
   __typename?: 'User';
+  email: Scalars['String']['output'];
   id: Scalars['Int']['output'];
-  lakes: Array<Maybe<Scalars['Int']['output']>>;
+  lakeIds?: Maybe<Array<Maybe<Scalars['Int']['output']>>>;
+  lakes?: Maybe<Array<Maybe<Lake>>>;
   lastLogin?: Maybe<Scalars['String']['output']>;
   lastNotification?: Maybe<Scalars['String']['output']>;
-  password: Scalars['String']['output'];
-  phoneNumber: Scalars['String']['output'];
-  salt: Scalars['String']['output'];
-  username: Scalars['String']['output'];
+  phoneNumber?: Maybe<Scalars['String']['output']>;
+  sendEmail?: Maybe<Scalars['Boolean']['output']>;
+  sendText?: Maybe<Scalars['Boolean']['output']>;
+  stockingReports?: Maybe<Array<Maybe<StockingReport>>>;
 };
 
 export type UserLakes = {
   __typename?: 'UserLakes';
   userLakes: Array<Maybe<Scalars['Int']['output']>>;
-};
-
-export type UserLoginInput = {
-  password: Scalars['String']['input'];
-  username: Scalars['String']['input'];
 };
 
 
@@ -184,15 +186,16 @@ export type ResolversTypes = {
   County: ResolverTypeWrapper<County>;
   CreateUserInput: CreateUserInput;
   DisplayUser: ResolverTypeWrapper<DisplayUser>;
+  Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Lake: ResolverTypeWrapper<Lake>;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
+  StockingReport: ResolverTypeWrapper<StockingReport>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   UpdateUserLakesInput: UpdateUserLakesInput;
   User: ResolverTypeWrapper<User>;
   UserLakes: ResolverTypeWrapper<UserLakes>;
-  UserLoginInput: UserLoginInput;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -201,15 +204,16 @@ export type ResolversParentTypes = {
   County: County;
   CreateUserInput: CreateUserInput;
   DisplayUser: DisplayUser;
+  Float: Scalars['Float']['output'];
   Int: Scalars['Int']['output'];
   Lake: Lake;
   Mutation: {};
   Query: {};
+  StockingReport: StockingReport;
   String: Scalars['String']['output'];
   UpdateUserLakesInput: UpdateUserLakesInput;
   User: User;
   UserLakes: UserLakes;
-  UserLoginInput: UserLoginInput;
 };
 
 export type CountyResolvers<ContextType = any, ParentType extends ResolversParentTypes['County'] = ResolversParentTypes['County']> = {
@@ -222,12 +226,16 @@ export type CountyResolvers<ContextType = any, ParentType extends ResolversParen
 
 export type DisplayUserResolvers<ContextType = any, ParentType extends ResolversParentTypes['DisplayUser'] = ResolversParentTypes['DisplayUser']> = {
   accessToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  lakes?: Resolver<Array<Maybe<ResolversTypes['Int']>>, ParentType, ContextType>;
+  lakeIds?: Resolver<Maybe<Array<Maybe<ResolversTypes['Int']>>>, ParentType, ContextType>;
+  lakes?: Resolver<Maybe<Array<Maybe<ResolversTypes['Lake']>>>, ParentType, ContextType>;
   lastLogin?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  phoneNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  phoneNumber?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  sendEmail?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  sendText?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  stockingReports?: Resolver<Maybe<Array<Maybe<ResolversTypes['StockingReport']>>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -239,25 +247,35 @@ export type LakeResolvers<ContextType = any, ParentType extends ResolversParentT
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createUser?: Resolver<Maybe<ResolversTypes['DisplayUser']>, ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'input'>>;
-  login?: Resolver<Maybe<ResolversTypes['DisplayUser']>, ParentType, ContextType, RequireFields<MutationLoginArgs, 'input'>>;
   updateUserLakes?: Resolver<Maybe<ResolversTypes['UserLakes']>, ParentType, ContextType, RequireFields<MutationUpdateUserLakesArgs, 'input'>>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   counties?: Resolver<Array<ResolversTypes['County']>, ParentType, ContextType>;
-  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
-  users?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'email'>>;
+};
+
+export type StockingReportResolvers<ContextType = any, ParentType extends ResolversParentTypes['StockingReport'] = ResolversParentTypes['StockingReport']> = {
+  date?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  lakeId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  number?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  size?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  species?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  lakes?: Resolver<Array<Maybe<ResolversTypes['Int']>>, ParentType, ContextType>;
+  lakeIds?: Resolver<Maybe<Array<Maybe<ResolversTypes['Int']>>>, ParentType, ContextType>;
+  lakes?: Resolver<Maybe<Array<Maybe<ResolversTypes['Lake']>>>, ParentType, ContextType>;
   lastLogin?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   lastNotification?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  password?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  phoneNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  salt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  phoneNumber?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  sendEmail?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  sendText?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  stockingReports?: Resolver<Maybe<Array<Maybe<ResolversTypes['StockingReport']>>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -272,6 +290,7 @@ export type Resolvers<ContextType = any> = {
   Lake?: LakeResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  StockingReport?: StockingReportResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserLakes?: UserLakesResolvers<ContextType>;
 };

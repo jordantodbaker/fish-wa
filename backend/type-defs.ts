@@ -1,15 +1,25 @@
 import { gql } from "@apollo/client";
 
 export const typeDefs = gql`
+  type StockingReport {
+    lakeId: Int
+    name: String
+    date: String
+    number: Int
+    species: String
+    size: Float
+  }
   type User {
     id: Int!
-    username: String!
-    phoneNumber: String!
-    password: String!
-    salt: String!
+    email: String!
+    phoneNumber: String
     lastLogin: String
     lastNotification: String
-    lakes: [Int]!
+    sendText: Boolean
+    sendEmail: Boolean
+    lakes: [Lake]
+    lakeIds: [Int]
+    stockingReports: [StockingReport]
   }
 
   type Lake {
@@ -26,17 +36,16 @@ export const typeDefs = gql`
 
   type DisplayUser {
     id: Int
-    username: String!
-    phoneNumber: String!
+    email: String!
+    phoneNumber: String
     message: String!
     accessToken: String
     lastLogin: String
-    lakes: [Int]!
-  }
-
-  input UserLoginInput {
-    username: String!
-    password: String!
+    sendText: Boolean
+    sendEmail: Boolean
+    lakes: [Lake]
+    lakeIds: [Int]
+    stockingReports: [StockingReport]
   }
 
   type UserLakes {
@@ -44,16 +53,13 @@ export const typeDefs = gql`
   }
 
   type Query {
-    user(id: Int!): User
-    users: [User!]!
+    user(email: String!): User
     counties: [County!]!
   }
 
   input CreateUserInput {
-    username: String!
-    password: String!
-    phoneNumber: String!
-    salt: String!
+    email: String!
+    phoneNumber: String
   }
 
   input UpdateUserLakesInput {
@@ -63,7 +69,6 @@ export const typeDefs = gql`
 
   type Mutation {
     createUser(input: CreateUserInput!): DisplayUser
-    login(input: UserLoginInput!): DisplayUser
     updateUserLakes(input: UpdateUserLakesInput!): UserLakes
   }
 `;

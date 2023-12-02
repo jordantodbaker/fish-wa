@@ -1,12 +1,14 @@
 const axios = require("axios");
 const mysql = require("serverless-mysql");
-const smsClient = require("../lib/sms-provider.js");
+//const smsClient = require("../lib/sms-provider.js");
 const schedule = require("node-schedule");
 
 const { url, GetLakes, ConvertFishPerLb } = require("./utils/lake-scraping");
 
 const dotenv = require("dotenv");
 dotenv.config({ path: `../.env.local`, override: true });
+
+console.log("HOST: ", process.env.MYSQL_HOST);
 
 const db = mysql({
   config: {
@@ -51,11 +53,11 @@ const SendNotifications = (notifications) => {
 
     console.log("SENDING MESSAGE: ", message);
 
-    smsClient.send({
-      body: message,
-      from: "+15005550006",
-      to: `+${notification.phoneNumber}`,
-    });
+    // smsClient.send({
+    //   body: message,
+    //   from: "+15005550006",
+    //   to: `+${notification.phoneNumber}`,
+    // });
   });
 };
 
@@ -153,7 +155,7 @@ axios
                   .toISOString()
                   .slice(0, 19)
                   .replace("T", " "),
-                parseInt(report.number),
+                parseInt(report.number.replace(",", "")),
                 parseFloat(report.fishPerLb),
                 report.species,
                 report.name.name,

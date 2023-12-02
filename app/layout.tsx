@@ -4,6 +4,7 @@ import "./globals.css";
 import { ApolloWrapper } from "@/lib/apollo-provider";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { UserProvider } from "@auth0/nextjs-auth0/client";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,11 +21,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <ApolloWrapper>
-          <Header>Footer</Header>
-          {children}
-          <Footer>Footer</Footer>
-        </ApolloWrapper>
+        <UserProvider>
+          <ApolloWrapper>
+            {/* <Header>Footer</Header> */}
+            {children}
+            {/* <Footer>Footer</Footer> */}
+          </ApolloWrapper>
+        </UserProvider>
       </body>
     </html>
   );

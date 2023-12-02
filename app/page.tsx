@@ -5,34 +5,46 @@ import { County, useCountiesQuery } from "../generated/graphql-frontend";
 import { NextUIProvider } from "@nextui-org/react";
 import LakesAccordion from "@/components/LakesAccordion";
 import Link from "next/link";
+import { useUser } from "@auth0/nextjs-auth0/client";
+import { useUserQuery } from "../generated/graphql-frontend";
+import StockingReport from "@/components/StockingReport";
 
 export default function Home() {
   const router = useRouter();
+  const { user: authUser, error, isLoading } = useUser();
 
-  const [userId, setUserId] = useState("")!;
+  if (!isLoading && !authUser) {
+    router.push("/api/auth/login");
+  }
 
   const { data, loading } = useCountiesQuery();
   const counties = data?.counties as [County];
 
-  useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
-    const userId = localStorage.getItem("userId");
-    setUserId(userId as any);
-    if (!accessToken) {
-      router.push("/login");
-    }
-  }, []);
+  const { data: userData, loading: userLoading } = useUserQuery({
+    variables: { email: authUser?.email },
+  });
 
-  return loading ? (
+  const [user, setUser] = useState(userData?.user);
+
+  useEffect(() => {
+    if (!loading) {
+      setUser(userData?.user);
+    }
+  }, [userLoading]);
+
+  return isLoading || loading || userLoading ? (
     <>Loading...</>
-  ) : counties ? (
+  ) : counties && user ? (
     <NextUIProvider>
       <main className="flex min-h-screen flex-col items-center p-24">
-        <div>Welcome</div>
-        <Link href={{ pathname: "/account", query: { id: userId } }}>
-          Account
-        </Link>
-        <LakesAccordion counties={counties} userId={parseInt(userId)} />
+        <div>
+          Welcome <Link href="api/auth/logout">Log out</Link>
+        </div>
+        <Link href={{ pathname: "/account" }}>Account</Link>
+        {user.stockingReports.length > 0 && (
+          <StockingReport stockingReports={user.stockingReports} />
+        )}
+        <LakesAccordion counties={counties} user={user} setUser={setUser} />
       </main>
     </NextUIProvider>
   ) : (

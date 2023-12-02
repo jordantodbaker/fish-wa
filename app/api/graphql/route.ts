@@ -3,6 +3,8 @@ import { createYoga } from "graphql-yoga";
 import mysql from "serverless-mysql";
 import { schema } from "../../../backend/schema";
 
+console.log(process.env.MYSQL_HOST);
+
 const db = mysql({
   config: {
     host: process.env.MYSQL_HOST,

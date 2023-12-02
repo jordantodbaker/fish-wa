@@ -1,10 +1,24 @@
-query User($id: Int!) {
-  user(id: $id) {
+query User($email: String!) {
+  user(email: $email) {
     id
-    username
+    email
     phoneNumber
     lastLogin
     lastNotification
-    lakes
+    sendText
+    sendEmail
+    lakes {
+      id
+      name
+    }
+    lakeIds
+    stockingReports {
+      lakeId
+      name
+      date
+      number
+      species
+      size
+    }
   }
 }

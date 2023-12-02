@@ -1,18 +1,18 @@
 
 -- DROP TABLE usersLakes;
--- DROP TABLE stockingReport;
--- DROP TABLE lakes;
--- DROP TABLE counties;
--- DROP TABLE users;
+ -- DROP TABLE stockingReport;
+ -- DROP TABLE lakes;
+ -- DROP TABLE counties;
+ -- DROP TABLE users;
 
 CREATE TABLE IF NOT EXISTS users (
     id INT UNSIGNED AUTO_INCREMENT,
-    username VARCHAR(255) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    phoneNumber VARCHAR(11) NOT NULL ,
-    salt VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phoneNumber VARCHAR(11),
     lastLogin DATETIME,
     lastNotification DATETIME,
+    sendText BOOLEAN,
+    sendEmail BOOLEAN,
     PRIMARY KEY (id)
 );
 
