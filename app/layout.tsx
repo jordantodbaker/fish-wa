@@ -20,10 +20,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.className}`}>
         <UserProvider>
           <ApolloWrapper>
-            {/* <Header>Footer</Header> */}
+            <Header />
             {children}
             {/* <Footer>Footer</Footer> */}
           </ApolloWrapper>

@@ -54,12 +54,18 @@ export type Lake = {
 export type Mutation = {
   __typename?: 'Mutation';
   createUser?: Maybe<DisplayUser>;
+  updateUser?: Maybe<Scalars['Int']['output']>;
   updateUserLakes?: Maybe<UserLakes>;
 };
 
 
 export type MutationCreateUserArgs = {
   input: CreateUserInput;
+};
+
+
+export type MutationUpdateUserArgs = {
+  input: UpdateUserInput;
 };
 
 
@@ -88,9 +94,23 @@ export type StockingReport = {
   species?: Maybe<Scalars['String']['output']>;
 };
 
+export type UpdateUserInput = {
+  phoneNumber?: InputMaybe<Scalars['String']['input']>;
+  sendEmail?: InputMaybe<Scalars['Boolean']['input']>;
+  sendText?: InputMaybe<Scalars['Boolean']['input']>;
+  userId: Scalars['Int']['input'];
+};
+
 export type UpdateUserLakesInput = {
   lakeIds: Array<InputMaybe<Scalars['Int']['input']>>;
   userId: Scalars['Int']['input'];
+};
+
+export type UpdateUserValues = {
+  __typename?: 'UpdateUserValues';
+  phoneNumber?: Maybe<Scalars['String']['output']>;
+  sendEmail?: Maybe<Scalars['Boolean']['output']>;
+  sendText?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export type User = {
@@ -130,6 +150,13 @@ export type UpdateUserLakesMutationVariables = Exact<{
 
 
 export type UpdateUserLakesMutation = { __typename?: 'Mutation', updateUserLakes?: { __typename?: 'UserLakes', userLakes: Array<number | null> } | null };
+
+export type UpdateUserMutationVariables = Exact<{
+  input: UpdateUserInput;
+}>;
+
+
+export type UpdateUserMutation = { __typename?: 'Mutation', updateUser?: number | null };
 
 export type UserQueryVariables = Exact<{
   email: Scalars['String']['input'];
@@ -252,6 +279,37 @@ export function useUpdateUserLakesMutation(baseOptions?: Apollo.MutationHookOpti
 export type UpdateUserLakesMutationHookResult = ReturnType<typeof useUpdateUserLakesMutation>;
 export type UpdateUserLakesMutationResult = Apollo.MutationResult<UpdateUserLakesMutation>;
 export type UpdateUserLakesMutationOptions = Apollo.BaseMutationOptions<UpdateUserLakesMutation, UpdateUserLakesMutationVariables>;
+export const UpdateUserDocument = gql`
+    mutation UpdateUser($input: UpdateUserInput!) {
+  updateUser(input: $input)
+}
+    `;
+export type UpdateUserMutationFn = Apollo.MutationFunction<UpdateUserMutation, UpdateUserMutationVariables>;
+
+/**
+ * __useUpdateUserMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserMutation, { data, loading, error }] = useUpdateUserMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateUserMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserMutation, UpdateUserMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument, options);
+      }
+export type UpdateUserMutationHookResult = ReturnType<typeof useUpdateUserMutation>;
+export type UpdateUserMutationResult = Apollo.MutationResult<UpdateUserMutation>;
+export type UpdateUserMutationOptions = Apollo.BaseMutationOptions<UpdateUserMutation, UpdateUserMutationVariables>;
 export const UserDocument = gql`
     query User($email: String!) {
   user(email: $email) {

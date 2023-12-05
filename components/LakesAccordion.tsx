@@ -5,20 +5,21 @@ import {
   County,
   User,
   useUpdateUserLakesMutation,
+  useCountiesQuery,
 } from "@/generated/graphql-frontend";
 import { Listbox, ListboxItem } from "@nextui-org/react";
 
 interface Props {
-  counties: [County];
   user: User;
   setUser: () => void;
+  handleSubmit: () => void;
 }
 
-const LakesAccordion: React.FC<Props> = ({ counties, user, setUser }) => {
-  const [updateUserLakes, { data, error, loading }] =
-    useUpdateUserLakesMutation();
+const LakesAccordion: React.FC<Props> = ({ user, setUser }) => {
+  const [updateUserLakes, { loading }] = useUpdateUserLakesMutation();
 
-  console.log("User in accordion", user);
+  const { data, loading: countiesLoading } = useCountiesQuery();
+  const counties = data?.counties as [County];
 
   const [selectedKeys, setSelectedKeys] = useState(
     new Set([user.lakes].map((lake) => `${lake}`))
@@ -55,32 +56,42 @@ const LakesAccordion: React.FC<Props> = ({ counties, user, setUser }) => {
     }
   }, [user.lakes]);
 
-  return (
+  return countiesLoading ? (
+    <>Loading...</>
+  ) : (
     <>
-      <Accordion isCompact>
-        {counties &&
-          counties.map((county) => {
-            return (
-              <AccordionItem key={county.id} title={county.name}>
-                <Listbox
-                  aria-label="Multiple selection example"
-                  variant="flat"
-                  disallowEmptySelection
-                  selectionMode="multiple"
-                  selectedKeys={selectedKeys}
-                  onSelectionChange={setSelectedKeys}
-                >
-                  {county.lakes.map((lake) => {
-                    return <ListboxItem key={lake.id}>{lake.name}</ListboxItem>;
-                  })}
-                </Listbox>
-              </AccordionItem>
-            );
-          })}
-      </Accordion>
-      <Button disabled={loading} onClick={handleSubmit}>
-        Subscribe
-      </Button>
+      <>
+        Select lakes by county to subscribe to them. When lakes are stocked you
+        can be notified via email or text.
+      </>
+      <>
+        <Accordion isCompact>
+          {counties &&
+            counties.map((county) => {
+              return (
+                <AccordionItem key={county.id} title={county.name}>
+                  <Listbox
+                    aria-label="Multiple selection example"
+                    variant="flat"
+                    disallowEmptySelection
+                    selectionMode="multiple"
+                    selectedKeys={selectedKeys}
+                    onSelectionChange={setSelectedKeys}
+                  >
+                    {county.lakes.map((lake) => {
+                      return (
+                        <ListboxItem key={lake.id}>{lake.name}</ListboxItem>
+                      );
+                    })}
+                  </Listbox>
+                </AccordionItem>
+              );
+            })}
+        </Accordion>
+        <Button disabled={loading} onClick={handleSubmit}>
+          Subscribe
+        </Button>
+      </>
     </>
   );
 };

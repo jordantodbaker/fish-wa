@@ -1,81 +1,83 @@
 "use client";
-import React, { useState } from "react";
-import { useUserQuery } from "@/generated/graphql-frontend";
+import React, { useState, useEffect } from "react";
+import {
+  useUserLazyQuery,
+  UpdateUserValues,
+} from "@/generated/graphql-frontend";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import { Button, Input } from "@nextui-org/react";
 
-interface Values {
-  email: string;
-  phoneNumber: string;
-  lakes: [number];
-}
+import {
+  AccountSettingForm,
+  LakesAccordion,
+  Loader,
+  MyLakes,
+} from "@/components";
+import { useRouter } from "next/navigation";
 
 const Account = () => {
   const { user: authUser, error, isLoading } = useUser();
+  const router = useRouter();
 
-  const { data, loading } = useUserQuery({
-    variables: { email: authUser.email },
+  if (!isLoading && typeof authUser === "undefined") {
+    router.push("/api/auth/login");
+  }
+
+  const [user, setUser] = useState(null);
+  const [pageLoading, setPageLoading] = useState(true);
+
+  const [values, setValues] = useState<UpdateUserValues>({
+    phoneNumber: undefined,
+    sendText: undefined,
+    sendEmail: undefined,
   });
 
-  const { user } = data;
-  const [values, setValues] = useState<Values>({
-    email: user.email,
-    phoneNumber: user.phoneNumber,
-    lakes: user.lakes,
+  const email = authUser ? authUser.email : null;
+
+  const [getUser, { data, loading: userLoading }] = useUserLazyQuery({
+    variables: { email: email },
+    onCompleted: (data) => {
+      setUser(data?.user);
+      setPageLoading(false);
+    },
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setValues((prevValues) => ({ ...prevValues, [name]: value }));
+  console.log("DATA: ", data);
+
+  useEffect(() => {
+    console.log("WE IN HERE", email);
+    if (email) {
+      console.log("AGAINAINANAN", email);
+      getUser();
+    }
+  }, [email]);
+
+  const getUniqueListBy = (arr, key) => {
+    return [...new Map(arr.map((item) => [item[key], item])).values()];
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // try {
-    //   const result = await updateTask({
-    //     variables: { input: { id, title: values.title } },
-    //   });
-    //   if (result.data?.updateTask) {
-    //     router.push("/");
-    //   }
-    // } catch (e) {}
-  };
-
+  console.log("Values: ", values);
   console.log({ user });
-  return loading && isLoading ? (
-    <>Loading...</>
+  return pageLoading ? (
+    <Loader />
   ) : (
-    <>
-      <h1>Account Settings</h1>
-      <form onSubmit={handleSubmit}>
-        {error && <p className="alert-error">{error.message}</p>}
-        <p>
-          <label className="field-label">Email</label>
-          <Input
-            type="text"
-            name="email"
-            className="text-input"
-            value={values.email}
-            disabled
-          />
-        </p>
-        <p>
-          <label className="field-label">Phone Number</label>
-          <Input
-            type="number"
-            name="phoneNumber"
-            className="text-input"
-            value={values.phoneNumber}
-            disabled
-          />
-        </p>
-        <p>
-          <Button className="button" type="submit" disabled={loading}>
-            {loading ? "Loading" : "Save"}
-          </Button>
-        </p>
-      </form>
-    </>
+    <div className="flex min-h-screen flex-col items-center p-24">
+      <div className="mb-6">
+        <h1>Account Settings</h1>
+        <p>Email: {email}</p>
+        <AccountSettingForm
+          userId={user.id}
+          values={values}
+          setValues={setValues}
+        />
+      </div>
+      <div className="mb-6">
+        <MyLakes lakes={getUniqueListBy(user?.lakes, "id")} />
+      </div>
+      <div className="width-auto">
+        <h1>Add Lakes To Your Subscription</h1>
+        <LakesAccordion user={user} setUser={setUser} />
+      </div>
+    </div>
   );
 };
 

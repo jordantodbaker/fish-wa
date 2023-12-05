@@ -9,6 +9,7 @@ export const typeDefs = gql`
     species: String
     size: Float
   }
+
   type User {
     id: Int!
     email: String!
@@ -48,6 +49,12 @@ export const typeDefs = gql`
     stockingReports: [StockingReport]
   }
 
+  type UpdateUserValues {
+    phoneNumber: String
+    sendText: Boolean
+    sendEmail: Boolean
+  }
+
   type UserLakes {
     userLakes: [Int]!
   }
@@ -67,8 +74,16 @@ export const typeDefs = gql`
     lakeIds: [Int]!
   }
 
+  input UpdateUserInput {
+    userId: Int!
+    phoneNumber: String
+    sendText: Boolean
+    sendEmail: Boolean
+  }
+
   type Mutation {
     createUser(input: CreateUserInput!): DisplayUser
     updateUserLakes(input: UpdateUserLakesInput!): UserLakes
+    updateUser(input: UpdateUserInput!): Int
   }
 `;

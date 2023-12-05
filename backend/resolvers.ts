@@ -60,13 +60,14 @@ export const resolvers: Resolvers<ApolloContext> = {
         );
         result = await context.db.query<UserDbQueryResult>(query, email);
       }
-      // console.log("user 123123: ", { result });
-      const lakeIds = result.map((user) => user.lakeId);
-      const lakes = result.map((user) => {
-        return { id: user.lakeId, name: user.name };
-      });
-      console.log({ lakeIds });
-      console.log({ lakes });
+      const lakeIds = result.map((user) => user.lakeId).filter(Number);
+      const lakes = result
+        .map((user) => {
+          if (user.lakeId) {
+            return { id: user.lakeId, name: user.name };
+          }
+        })
+        .filter((n) => n);
       const stockingReports = result
         .map((user) => {
           if (user.name) {
@@ -81,8 +82,7 @@ export const resolvers: Resolvers<ApolloContext> = {
           }
         })
         .filter((n) => n && n.date);
-      console.log({ result });
-      return {
+      const user = {
         id: result[0].id,
         email: result[0].email,
         phoneNumber: result[0].phoneNumber,
@@ -90,6 +90,8 @@ export const resolvers: Resolvers<ApolloContext> = {
         lakes: lakes,
         stockingReports,
       };
+      console.log("USER:", user);
+      return user;
     },
     counties: async (parent, args, context) => {
       const counties = await context.db.query<CountyDbQueryResult>(
@@ -153,6 +155,14 @@ export const resolvers: Resolvers<ApolloContext> = {
       context.db.end();
       const userLakes: UserLakes = { userLakes: [] };
       return userLakes;
+    },
+    updateUser: async (parent, args, context) => {
+      const { userId, phoneNumber, sendText, sendEmail } = args.input;
+      context.db.query(
+        "UPDATE users SET phoneNumber = ?, sendText = ?, sendEmail = ? WHERE id = ?",
+        [phoneNumber, sendText, sendEmail, userId]
+      );
+      return userId;
     },
   },
 };

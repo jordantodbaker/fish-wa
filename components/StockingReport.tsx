@@ -16,7 +16,6 @@ interface Props {
 }
 
 const StockingReport: React.FC<Props> = ({ stockingReports }) => {
-  console.log({ stockingReports });
   return (
     <Table aria-label="Your Stocking Report">
       <TableHeader>
