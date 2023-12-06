@@ -2,7 +2,7 @@ import React from "react";
 import { Lake } from "@/generated/graphql-frontend";
 
 interface Props {
-  lakes: [Lake];
+  lakes: Lake[];
 }
 
 const MyLakes: React.FC<Props> = ({ lakes }) => {
@@ -15,8 +15,8 @@ const MyLakes: React.FC<Props> = ({ lakes }) => {
     </>
   ) : (
     <h1>
-      You aren't subscribed to any lakes yet. Add lakes to your subscription
-      below.
+      You aren&apos;t subscribed to any lakes yet. Add lakes to your
+      subscription below.
     </h1>
   );
 };

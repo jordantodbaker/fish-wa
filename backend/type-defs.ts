@@ -60,7 +60,7 @@ export const typeDefs = gql`
   }
 
   type Query {
-    user(email: String!): User
+    user(email: String): User
     counties: [County!]!
   }
 

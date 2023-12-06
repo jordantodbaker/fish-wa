@@ -1,7 +1,9 @@
 import {
   Resolvers,
+  Lake,
   User,
   DisplayUser,
+  StockingReport,
   UserLakes,
 } from "@/generated/graphql-backend";
 import mysql from "serverless-mysql";
@@ -25,10 +27,6 @@ interface UserDbRow {
   species: string;
   size: number;
 }
-
-type Lake = {
-  name: String;
-};
 
 interface CountyDbRow {
   id: number;
@@ -61,10 +59,10 @@ export const resolvers: Resolvers<ApolloContext> = {
         result = await context.db.query<UserDbQueryResult>(query, email);
       }
       const lakeIds = result.map((user) => user.lakeId).filter(Number);
-      const lakes = result
-        .map((user) => {
+      const lakes: (Lake | undefined)[] = result
+        .map((user: UserDbRow) => {
           if (user.lakeId) {
-            return { id: user.lakeId, name: user.name };
+            return { id: user.lakeId, name: user.name } as Lake;
           }
         })
         .filter((n) => n);
@@ -87,8 +85,8 @@ export const resolvers: Resolvers<ApolloContext> = {
         email: result[0].email,
         phoneNumber: result[0].phoneNumber,
         lakeIds: lakeIds,
-        lakes: lakes,
-        stockingReports,
+        lakes: lakes as [Lake],
+        stockingReports: stockingReports as [StockingReport],
       };
       console.log("USER:", user);
       return user;

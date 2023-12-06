@@ -1,12 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { County, useCountiesQuery } from "../generated/graphql-frontend";
-import { NextUIProvider } from "@nextui-org/react";
 import { LakesAccordion, Loader, StockingReport } from "@/components";
-import Link from "next/link";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import { useUserQuery } from "../generated/graphql-frontend";
+import {
+  StockingReport as StockingReportType,
+  User,
+  useUserQuery,
+} from "../generated/graphql-frontend";
 
 export default function Home() {
   const router = useRouter();
@@ -17,27 +18,30 @@ export default function Home() {
   }
 
   const { data: userData, loading: userLoading } = useUserQuery({
-    variables: { email: authUser?.email },
+    variables: { email: authUser?.email! },
   });
 
-  const [user, setUser] = useState(userData?.user);
+  const [user, setUser] = useState<User | null>(null);
+  userData?.user;
 
   useEffect(() => {
     if (!userLoading) {
-      setUser(userData?.user);
+      setUser(userData?.user!);
     }
-  }, [userLoading]);
+  }, [userLoading, userData?.user]);
 
-  console.log();
+  console.log("Stocking Report", user?.stockingReports);
 
   return isLoading || userLoading ? (
     <Loader />
   ) : user ? (
     <main className="flex min-h-screen flex-col items-center p-24">
-      {user.stockingReports.length > 0 && (
-        <StockingReport stockingReports={user.stockingReports} />
+      {user.stockingReports!.length > 0 && (
+        <StockingReport
+          stockingReports={user.stockingReports! as [StockingReportType]}
+        />
       )}
-      <LakesAccordion user={user} setUser={setUser} />
+      {/* <LakesAccordion user={user} setUser={setUser} /> */}
     </main>
   ) : (
     <>Error</>

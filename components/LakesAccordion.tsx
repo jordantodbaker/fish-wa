@@ -1,9 +1,10 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { Accordion, AccordionItem, Button } from "@nextui-org/react";
 import {
   County,
   User,
+  StockingReport,
   useUpdateUserLakesMutation,
   useCountiesQuery,
 } from "@/generated/graphql-frontend";
@@ -11,8 +12,7 @@ import { Listbox, ListboxItem } from "@nextui-org/react";
 
 interface Props {
   user: User;
-  setUser: () => void;
-  handleSubmit: () => void;
+  setUser: Dispatch<SetStateAction<User | null>>;
 }
 
 const LakesAccordion: React.FC<Props> = ({ user, setUser }) => {
@@ -21,38 +21,38 @@ const LakesAccordion: React.FC<Props> = ({ user, setUser }) => {
   const { data, loading: countiesLoading } = useCountiesQuery();
   const counties = data?.counties as [County];
 
-  const [selectedKeys, setSelectedKeys] = useState(
-    new Set([user.lakes].map((lake) => `${lake}`))
-  );
+  // const [selectedKeys, setSelectedKeys] = useState<Set<string>>(
+  //   new Set([user.lakeIds].map((lake) => `${lake}`))
+  // );
 
-  const handleSubmit = async () => {
-    if (user.id) {
-      const lakeIds = Array.from(selectedKeys)
-        .map((key) => parseInt(key))
-        .filter((n) => n);
-      try {
-        setUser((prevUser) => {
-          return {
-            ...prevUser,
-            lakes: lakeIds,
-            stockingReports: prevUser.stockingReports.filter((report) =>
-              lakeIds.includes(report.lakeId)
-            ),
-          };
-        });
-        await updateUserLakes({
-          variables: { input: { userId: user.id, lakeIds } },
-        });
-      } catch (e) {
-        console.log(e);
-      }
-    }
-  };
+  // const handleSubmit = async () => {
+  //   if (user.id) {
+  //     const lakeIds = Array.from(selectedKeys)
+  //       .map((key) => parseInt(key))
+  //       .filter((n) => n);
+  //     try {
+  //       setUser((prevUser) => {
+  //         return {
+  //           ...prevUser,
+  //           lakeIds: lakeIds,
+  //           stockingReports: prevUser?.stockingReports!.filter((report) =>
+  //             lakeIds.includes(report?.lakeId!)
+  //           ) as [StockingReport],
+  //         } as User;
+  //       });
+  //       await updateUserLakes({
+  //         variables: { input: { userId: user.id, lakeIds } },
+  //       });
+  //     } catch (e) {
+  //       console.log(e);
+  //     }
+  //   }
+  // };
 
   useEffect(() => {
-    if (user.lakes) {
-      const selectedLakes = user.lakes.map((lake) => `${lake}`);
-      setSelectedKeys(selectedLakes);
+    if (user.lakeIds) {
+      const selectedLakes = user.lakeIds.map((lake) => `${lake}`);
+      //setSelectedKeys(selectedLakes);
     }
   }, [user.lakes]);
 
@@ -65,7 +65,7 @@ const LakesAccordion: React.FC<Props> = ({ user, setUser }) => {
         can be notified via email or text.
       </>
       <>
-        <Accordion isCompact>
+        {/* <Accordion isCompact>
           {counties &&
             counties.map((county) => {
               return (
@@ -87,10 +87,8 @@ const LakesAccordion: React.FC<Props> = ({ user, setUser }) => {
                 </AccordionItem>
               );
             })}
-        </Accordion>
-        <Button disabled={loading} onClick={handleSubmit}>
-          Subscribe
-        </Button>
+        </Accordion> */}
+        <Button disabled={loading}>Subscribe</Button>
       </>
     </>
   );

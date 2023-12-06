@@ -81,7 +81,7 @@ export type Query = {
 
 
 export type QueryUserArgs = {
-  email: Scalars['String']['input'];
+  email?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type StockingReport = {

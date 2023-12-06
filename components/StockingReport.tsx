@@ -30,7 +30,7 @@ const StockingReport: React.FC<Props> = ({ stockingReports }) => {
           <TableRow key={i}>
             <TableCell>{report.name}</TableCell>
             <TableCell>
-              {new Date(parseInt(report.date)).toDateString()}
+              {new Date(parseInt(report.date!)).toDateString()}
             </TableCell>
             <TableCell>{report.number}</TableCell>
             <TableCell>{`${ConvertFishPerLb(report.size)} lbs`}</TableCell>

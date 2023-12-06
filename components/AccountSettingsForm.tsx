@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import { Button, Checkbox, Input } from "@nextui-org/react";
 import {
   useUpdateUserMutation,
@@ -8,7 +8,7 @@ import {
 interface Props {
   userId: number;
   values: UpdateUserValues;
-  setValues: () => void;
+  setValues: Dispatch<SetStateAction<UpdateUserValues>>;
 }
 
 const AccountSettingForm: React.FC<Props> = ({ userId, values, setValues }) => {
@@ -44,7 +44,7 @@ const AccountSettingForm: React.FC<Props> = ({ userId, values, setValues }) => {
           name="phoneNumber"
           className="text-input"
           onChange={handleChange}
-          value={values.phoneNumber}
+          value={values.phoneNumber!}
         />
       </p>
       <p className="mt-4">

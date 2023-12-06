@@ -1,6 +1,10 @@
 import React from "react";
 
-const Footer = ({ children }) => {
+interface Props {
+  children: React.ReactNode;
+}
+
+const Footer: React.FC<Props> = ({ children }) => {
   return <>{children}</>;
 };
 

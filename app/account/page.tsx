@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import {
+  Lake,
+  User,
   useUserLazyQuery,
   UpdateUserValues,
 } from "@/generated/graphql-frontend";
@@ -22,7 +24,7 @@ const Account = () => {
     router.push("/api/auth/login");
   }
 
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [pageLoading, setPageLoading] = useState(true);
 
   const [values, setValues] = useState<UpdateUserValues>({
@@ -31,35 +33,33 @@ const Account = () => {
     sendEmail: undefined,
   });
 
-  const email = authUser ? authUser.email : null;
+  const email = authUser ? authUser.email! : "";
 
   const [getUser, { data, loading: userLoading }] = useUserLazyQuery({
     variables: { email: email },
     onCompleted: (data) => {
-      setUser(data?.user);
+      setUser(data?.user!);
       setPageLoading(false);
     },
   });
 
-  console.log("DATA: ", data);
-
   useEffect(() => {
-    console.log("WE IN HERE", email);
     if (email) {
-      console.log("AGAINAINANAN", email);
       getUser();
     }
-  }, [email]);
+  }, [email, getUser]);
 
-  const getUniqueListBy = (arr, key) => {
-    return [...new Map(arr.map((item) => [item[key], item])).values()];
+  const getUniqueListBy = (arr: Lake[] | any, key: any): Lake[] => {
+    return [
+      ...new Map(
+        arr.map((item: Lake) => [item[key as keyof typeof item], item])
+      ).values(),
+    ] as Lake[];
   };
 
-  console.log("Values: ", values);
-  console.log({ user });
   return pageLoading ? (
     <Loader />
-  ) : (
+  ) : user && user ? (
     <div className="flex min-h-screen flex-col items-center p-24">
       <div className="mb-6">
         <h1>Account Settings</h1>
@@ -71,13 +71,15 @@ const Account = () => {
         />
       </div>
       <div className="mb-6">
-        <MyLakes lakes={getUniqueListBy(user?.lakes, "id")} />
+        <MyLakes lakes={getUniqueListBy(user.lakes!, "id")} />
       </div>
       <div className="width-auto">
         <h1>Add Lakes To Your Subscription</h1>
-        <LakesAccordion user={user} setUser={setUser} />
+        {/* <LakesAccordion user={user} setUser={setUser} /> */}
       </div>
     </div>
+  ) : (
+    <></>
   );
 };
 

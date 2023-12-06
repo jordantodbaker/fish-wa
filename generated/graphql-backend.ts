@@ -80,7 +80,7 @@ export type Query = {
 
 
 export type QueryUserArgs = {
-  email: Scalars['String']['input'];
+  email?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type StockingReport = {
@@ -277,7 +277,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   counties?: Resolver<Array<ResolversTypes['County']>, ParentType, ContextType>;
-  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'email'>>;
+  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, Partial<QueryUserArgs>>;
 };
 
 export type StockingReportResolvers<ContextType = any, ParentType extends ResolversParentTypes['StockingReport'] = ResolversParentTypes['StockingReport']> = {

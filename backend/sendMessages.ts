@@ -1,4 +1,4 @@
-smsClient = require("../lib/sms-provider.js");
+import smsClient from "../lib/sms-provider.js";
 
 smsClient.send({
   body: "test message",
