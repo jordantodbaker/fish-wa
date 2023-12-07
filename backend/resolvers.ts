@@ -54,7 +54,7 @@ export const resolvers: Resolvers<ApolloContext> = {
 
       console.log("after result");
 
-      let userResult = result.rows as UserDbRow[];
+      let userResult = [] as any; //result.rows as UserDbRow[];
       if (userResult.length === 0) {
         console.log("CREATING NEW USER");
         await context.db.execute(
