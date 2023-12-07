@@ -1,22 +1,17 @@
 // Next.js Custom Route Handler: https://nextjs.org/docs/app/building-your-application/routing/router-handlers
 import { createYoga } from "graphql-yoga";
-import mysql from "serverless-mysql";
 import { schema } from "../../../backend/schema";
+import { connect } from "@planetscale/database";
 
-console.log(process.env.MYSQL_HOST);
-
-const db = mysql({
-  config: {
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    database: process.env.MYSQL_DATABASE,
-    password: process.env.MYSQL_PASSWORD,
-  },
-});
+const config = {
+  host: process.env.PS_DB_HOST,
+  username: process.env.PS_DB_USER,
+  password: process.env.PS_DB_PASSWORD,
+};
 
 const { handleRequest } = createYoga({
   schema: schema,
-  context: { db },
+  context: { db: connect(config) },
   graphqlEndpoint: "/api/graphql",
   fetchAPI: { Response },
 });

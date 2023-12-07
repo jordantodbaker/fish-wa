@@ -1,9 +1,9 @@
 
--- DROP TABLE usersLakes;
- -- DROP TABLE stockingReport;
- -- DROP TABLE lakes;
- -- DROP TABLE counties;
- -- DROP TABLE users;
+ DROP TABLE usersLakes;
+ DROP TABLE stockingReport;
+ DROP TABLE lakes;
+ DROP TABLE counties;
+ DROP TABLE users;
 
 CREATE TABLE IF NOT EXISTS users (
     id INT UNSIGNED AUTO_INCREMENT,

@@ -30,6 +30,13 @@ export type CreateUserInput = {
   phoneNumber?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CreatedUser = {
+  __typename?: 'CreatedUser';
+  email: Scalars['String']['output'];
+  id: Scalars['Int']['output'];
+  message: Scalars['String']['output'];
+};
+
 export type DisplayUser = {
   __typename?: 'DisplayUser';
   accessToken?: Maybe<Scalars['String']['output']>;
@@ -53,7 +60,7 @@ export type Lake = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  createUser?: Maybe<DisplayUser>;
+  createUser?: Maybe<CreatedUser>;
   updateUser?: Maybe<Scalars['Int']['output']>;
   updateUserLakes?: Maybe<UserLakes>;
 };
@@ -142,7 +149,7 @@ export type CreateUserMutationVariables = Exact<{
 }>;
 
 
-export type CreateUserMutation = { __typename?: 'Mutation', createUser?: { __typename?: 'DisplayUser', id?: number | null, email: string, phoneNumber?: string | null } | null };
+export type CreateUserMutation = { __typename?: 'Mutation', createUser?: { __typename?: 'CreatedUser', id: number, email: string, message: string } | null };
 
 export type UpdateUserLakesMutationVariables = Exact<{
   input: UpdateUserLakesInput;
@@ -216,7 +223,7 @@ export const CreateUserDocument = gql`
   createUser(input: $input) {
     id
     email
-    phoneNumber
+    message
   }
 }
     `;

@@ -20,6 +20,37 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
+## Tech used
+
+- Nextjs
+- React
+- Typescript
+- Apollo
+- Docker with Mysql
+  - Originally started with a docker imagine that contained a mysql server. This proved difficult to deploy with nextjs in a cloud environment.
+- DBVisualizer
+- Auth0
+- Vercel
+- PlanetScalecd f
+- Twilio
+- node-parser
+
+## Expored deployments using:
+
+- AWS
+  - EC2
+    - Started on EC2, learned how to create an instance, SSH in, install node, npm, nginx, etc. Couldn't figure out how to expose my application on AWS using nginx or pm2 following various tutorials. Looked at other solutions and saw:
+  - Amplify
+    - More out of the box, "just works" with nextjs programs. Couldn't find an easy way to deploy my docker container with my mysql database in it.
+- Buddy CICD
+  - On push will run tests
+- Vercel
+  - Doesn't support containerized mysql docker - Will have to replace backend
+- Planetscale
+  - Out of the box support for vercel integration
+  - Had to use their mysql driver, backend refactor
+  - Supports branching for database changes
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

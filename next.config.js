@@ -8,5 +8,9 @@ module.exports = {
     MYSQL_USER: process.env.MYSQL_USER,
     MYSQL_DATABASE: process.env.MYSQL_DATABASE,
     MYSQL_PASSWORD: process.env.MYSQL_PASSWORD,
+    PS_DB_HOST: process.env.PS_DB_HOST,
+    PS_DB_USER: process.env.PS_DB_USER,
+    PS_DB_DATABASE: process.env.PS_DB_DATABASE,
+    PS_DB_PASSWORD: process.env.PS_DB_PASSWORD,
   },
 };

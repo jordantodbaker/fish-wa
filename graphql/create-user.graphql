@@ -2,6 +2,6 @@ mutation CreateUser($input: CreateUserInput!) {
   createUser(input: $input) {
     id
     email
-    phoneNumber
+    message
   }
 }

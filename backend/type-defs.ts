@@ -69,6 +69,12 @@ export const typeDefs = gql`
     phoneNumber: String
   }
 
+  type CreatedUser {
+    id: Int!
+    email: String!
+    message: String!
+  }
+
   input UpdateUserLakesInput {
     userId: Int!
     lakeIds: [Int]!
@@ -82,7 +88,7 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    createUser(input: CreateUserInput!): DisplayUser
+    createUser(input: CreateUserInput!): CreatedUser
     updateUserLakes(input: UpdateUserLakesInput!): UserLakes
     updateUser(input: UpdateUserInput!): Int
   }

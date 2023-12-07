@@ -29,6 +29,13 @@ export type CreateUserInput = {
   phoneNumber?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CreatedUser = {
+  __typename?: 'CreatedUser';
+  email: Scalars['String']['output'];
+  id: Scalars['Int']['output'];
+  message: Scalars['String']['output'];
+};
+
 export type DisplayUser = {
   __typename?: 'DisplayUser';
   accessToken?: Maybe<Scalars['String']['output']>;
@@ -52,7 +59,7 @@ export type Lake = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  createUser?: Maybe<DisplayUser>;
+  createUser?: Maybe<CreatedUser>;
   updateUser?: Maybe<Scalars['Int']['output']>;
   updateUserLakes?: Maybe<UserLakes>;
 };
@@ -205,6 +212,7 @@ export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   County: ResolverTypeWrapper<County>;
   CreateUserInput: CreateUserInput;
+  CreatedUser: ResolverTypeWrapper<CreatedUser>;
   DisplayUser: ResolverTypeWrapper<DisplayUser>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
@@ -225,6 +233,7 @@ export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
   County: County;
   CreateUserInput: CreateUserInput;
+  CreatedUser: CreatedUser;
   DisplayUser: DisplayUser;
   Float: Scalars['Float']['output'];
   Int: Scalars['Int']['output'];
@@ -245,6 +254,13 @@ export type CountyResolvers<ContextType = any, ParentType extends ResolversParen
   lakes?: Resolver<Array<ResolversTypes['Lake']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   shortName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CreatedUserResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreatedUser'] = ResolversParentTypes['CreatedUser']> = {
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -270,7 +286,7 @@ export type LakeResolvers<ContextType = any, ParentType extends ResolversParentT
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  createUser?: Resolver<Maybe<ResolversTypes['DisplayUser']>, ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'input'>>;
+  createUser?: Resolver<Maybe<ResolversTypes['CreatedUser']>, ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'input'>>;
   updateUser?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'input'>>;
   updateUserLakes?: Resolver<Maybe<ResolversTypes['UserLakes']>, ParentType, ContextType, RequireFields<MutationUpdateUserLakesArgs, 'input'>>;
 };
@@ -318,6 +334,7 @@ export type UserLakesResolvers<ContextType = any, ParentType extends ResolversPa
 
 export type Resolvers<ContextType = any> = {
   County?: CountyResolvers<ContextType>;
+  CreatedUser?: CreatedUserResolvers<ContextType>;
   DisplayUser?: DisplayUserResolvers<ContextType>;
   Lake?: LakeResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
