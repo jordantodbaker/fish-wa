@@ -12,5 +12,6 @@ module.exports = {
     PS_DB_USER: process.env.PS_DB_USER,
     PS_DB_DATABASE: process.env.PS_DB_DATABASE,
     PS_DB_PASSWORD: process.env.PS_DB_PASSWORD,
+    IS_DEV: process.env.IS_DEV,
   },
 };

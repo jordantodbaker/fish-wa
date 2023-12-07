@@ -30,8 +30,6 @@ export default function Home() {
     }
   }, [userLoading, userData?.user]);
 
-  console.log("Stocking Report", user?.stockingReports);
-
   return isLoading || userLoading ? (
     <Loader />
   ) : user ? (

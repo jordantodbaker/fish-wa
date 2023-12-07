@@ -37,6 +37,8 @@ export const resolvers: Resolvers<ApolloContext> = {
     user: async (parent, args, context) => {
       const { email } = args;
 
+      console.log("IN USE USER");
+
       let query = `SELECT u.id, u.email, u.phoneNumber, ul.lakeId, l.name, sr.date, sr.number, sr.species, sr.size 
            FROM users u 
       LEFT JOIN usersLakes ul ON ul.userId  = u.id 
@@ -45,7 +47,9 @@ export const resolvers: Resolvers<ApolloContext> = {
 
       let result: ExecutedQuery = await context.db.execute(query, [email]);
       let userResult = result.rows as UserDbRow[];
+      console.log({ userResult });
       if (userResult.length === 0) {
+        console.log("CREATING NEW USER");
         await context.db.execute(
           "INSERT INTO users (email, lastLogin, lastNotification) VALUES (?, NOW(), NOW())",
           [email]
@@ -90,11 +94,12 @@ export const resolvers: Resolvers<ApolloContext> = {
     },
     counties: async (parent, args, context) => {
       const counties: ExecutedQuery = await context.db.execute(
-        "SELECT c.id, c.name, c.shortName, l.name as lakeName, l.id as lakeId FROM counties c INNER JOIN lakes l ON l.countyId = c.id"
+        "SELECT c.id, c.name, c.shortName, l.name as lakeName, l.id as lakeId FROM counties c INNER JOIN lakes l ON l.countyId = c.id;"
       );
       let lakes = [] as any;
       let prevCounty = counties.rows[0] as CountyDbRow;
       const countyRows = counties.rows as CountyDbRow[];
+      console.log({ countyRows });
       const result = countyRows.reduce((acc, county, idx) => {
         if (typeof county.id !== "undefined") {
           if (prevCounty.id != county.id) {
@@ -127,6 +132,7 @@ export const resolvers: Resolvers<ApolloContext> = {
   },
   Mutation: {
     createUser: async (parent, args, context) => {
+      console.log("CREATING NEW USER");
       const result: ExecutedQuery = await context.db.execute(
         "INSERT INTO users (email, phoneNumber, lastNotification) VALUES (?, ?, ?, ?, NOW())",
         [args.input.email, args.input.phoneNumber]

@@ -9,8 +9,11 @@ import {
 } from "@apollo/experimental-nextjs-app-support/ssr";
 
 function makeClient() {
+  const uri = process.env.IS_DEV
+    ? "http://localhost:3000"
+    : "https://fish-wa.vercel.app/api/graphql";
   const httpLink = new HttpLink({
-    uri: "http://localhost:3000/api/graphql",
+    uri: uri,
   });
 
   return new NextSSRApolloClient({
