@@ -45,9 +45,11 @@ export const resolvers: Resolvers<ApolloContext> = {
       LEFT JOIN  lakes l ON l.id = ul.lakeId
       LEFT JOIN stockingReport sr ON sr.lakeId = l.id WHERE u.email = ? `;
 
+      console.log("Pres RESULT");
+
       let result: ExecutedQuery = await context.db.execute(query, [email]);
+      console.log({ result });
       let userResult = result.rows as UserDbRow[];
-      console.log({ userResult });
       if (userResult.length === 0) {
         console.log("CREATING NEW USER");
         await context.db.execute(
