@@ -43,7 +43,12 @@ export const resolvers: Resolvers<ApolloContext> = {
       LEFT JOIN  lakes l ON l.id = ul.lakeId
       LEFT JOIN stockingReport sr ON sr.lakeId = l.id WHERE u.email = ?;`;
 
+      console.log("Pre result: ", email);
+
       let result: ExecutedQuery = await context.db.execute(query, [email]);
+
+      console.log("after result");
+      console.log({ result });
 
       let userResult = result.rows as UserDbRow[];
       if (userResult.length === 0) {
@@ -96,7 +101,6 @@ export const resolvers: Resolvers<ApolloContext> = {
       let lakes = [] as any;
       let prevCounty = counties.rows[0] as CountyDbRow;
       const countyRows = counties.rows as CountyDbRow[];
-      console.log({ countyRows });
       const result = countyRows.reduce((acc, county, idx) => {
         if (typeof county.id !== "undefined") {
           if (prevCounty.id != county.id) {
@@ -128,18 +132,6 @@ export const resolvers: Resolvers<ApolloContext> = {
     },
   },
   Mutation: {
-    createUser: async (parent, args, context) => {
-      console.log("CREATING NEW USER");
-      const result: ExecutedQuery = await context.db.execute(
-        "INSERT INTO users (email, phoneNumber, lastNotification) VALUES (?, ?, ?, ?, NOW())",
-        [args.input.email, args.input.phoneNumber]
-      );
-      return {
-        id: parseInt(result.insertId),
-        email: args.input.email,
-        message: "userCreated",
-      };
-    },
     updateUserLakes: async (parent, args, context) => {
       const { userId, lakeIds } = args.input;
       console.log({ userId });
