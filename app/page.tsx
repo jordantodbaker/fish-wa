@@ -17,18 +17,21 @@ export default function Home() {
     router.push("/api/auth/login");
   }
 
+  console.log("WTF");
+
   const { data: userData, loading: userLoading } = useUserQuery({
     variables: { email: authUser?.email! },
   });
 
   const [user, setUser] = useState<User | null>(null);
-  userData?.user;
 
   useEffect(() => {
     if (!userLoading) {
       setUser(userData?.user!);
     }
   }, [userLoading, userData?.user]);
+
+  console.log({ user });
 
   return isLoading || userLoading ? (
     <Loader />

@@ -10,7 +10,7 @@ import {
 
 function makeClient() {
   const uri = process.env.IS_DEV
-    ? "http://localhost:3000"
+    ? "http://localhost:3000/api/graphql"
     : "https://fish-wa.vercel.app/api/graphql";
   const httpLink = new HttpLink({
     uri: uri,

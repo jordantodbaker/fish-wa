@@ -37,18 +37,14 @@ export const resolvers: Resolvers<ApolloContext> = {
     user: async (parent, args, context) => {
       const { email } = args;
 
-      console.log("IN USE USER");
-
       let query = `SELECT u.id, u.email, u.phoneNumber, ul.lakeId, l.name, sr.date, sr.number, sr.species, sr.size 
            FROM users u 
       LEFT JOIN usersLakes ul ON ul.userId  = u.id 
       LEFT JOIN  lakes l ON l.id = ul.lakeId
       LEFT JOIN stockingReport sr ON sr.lakeId = l.id WHERE u.email = ?;`;
 
-      console.log("Pres RESULT");
-
       let result: ExecutedQuery = await context.db.execute(query, [email]);
-      console.log({ result });
+
       let userResult = result.rows as UserDbRow[];
       if (userResult.length === 0) {
         console.log("CREATING NEW USER");
@@ -91,7 +87,6 @@ export const resolvers: Resolvers<ApolloContext> = {
         lakes: lakes as [Lake],
         stockingReports: stockingReports as [StockingReport],
       };
-      console.log("USER:", user);
       return user;
     },
     counties: async (parent, args, context) => {
