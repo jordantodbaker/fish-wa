@@ -43,7 +43,7 @@ export const resolvers: Resolvers<ApolloContext> = {
            FROM users u 
       LEFT JOIN usersLakes ul ON ul.userId  = u.id 
       LEFT JOIN  lakes l ON l.id = ul.lakeId
-      LEFT JOIN stockingReport sr ON sr.lakeId = l.id WHERE u.email = ? `;
+      LEFT JOIN stockingReport sr ON sr.lakeId = l.id WHERE u.email = ?;`;
 
       console.log("Pres RESULT");
 
@@ -53,7 +53,7 @@ export const resolvers: Resolvers<ApolloContext> = {
       if (userResult.length === 0) {
         console.log("CREATING NEW USER");
         await context.db.execute(
-          "INSERT INTO users (email, lastLogin, lastNotification) VALUES (?, NOW(), NOW())",
+          "INSERT INTO users (email, lastLogin, lastNotification) VALUES (?, NOW(), NOW());",
           [email]
         );
         result = await context.db.execute(query, [email]);
