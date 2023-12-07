@@ -44,11 +44,15 @@ export const resolvers: Resolvers<ApolloContext> = {
       LEFT JOIN stockingReport sr ON sr.lakeId = l.id WHERE u.email = ?;`;
 
       console.log("Pre result: ", email);
-
-      let result: ExecutedQuery = await context.db.execute(query, [email]);
+      let result: ExecutedQuery;
+      try {
+        result = await context.db.execute(query, [email]);
+        console.log({ result });
+      } catch (e) {
+        console.log({ e });
+      }
 
       console.log("after result");
-      console.log({ result });
 
       let userResult = result.rows as UserDbRow[];
       if (userResult.length === 0) {
