@@ -18,12 +18,12 @@ const AccordionItem: React.FC<Props> = ({
   setUser,
 }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(defaultExpanded);
-  const onClickCheckbox = (e) => {
+  const onClickCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsExpanded(true);
     if (e.target.checked) {
       setUser((prevUser) => {
         const prevLakes = prevUser?.lakes as Lake[];
-        return { ...prevUser, lakes: [...prevLakes, ...county.lakes] };
+        return { ...prevUser!, lakes: [...prevLakes, ...county.lakes] };
       });
     } else {
       setUser((prevUser) => {
@@ -34,7 +34,7 @@ const AccordionItem: React.FC<Props> = ({
           (prevLake) => !currentCountyLakeIds.includes(prevLake.id)
         );
         return {
-          ...prevUser,
+          ...prevUser!,
           lakes: newLakes,
         };
       });

@@ -102,7 +102,7 @@ const LakesAccordion: React.FC<Props> = ({ user, setUser }) => {
         {counties &&
           counties.map((county) => {
             return (
-              <div>
+              <div key={county.id}>
                 <AccordionItem
                   county={county}
                   setUser={setUser}
