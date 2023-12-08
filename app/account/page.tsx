@@ -29,9 +29,9 @@ const Account = () => {
   const [pageLoading, setPageLoading] = useState(true);
 
   const [values, setValues] = useState<UpdateUserValues>({
-    phoneNumber: undefined,
-    sendText: undefined,
-    sendEmail: undefined,
+    phoneNumber: user?.phoneNumber,
+    sendText: user?.sendText,
+    sendEmail: user?.sendEmail,
   });
 
   const email = authUser ? authUser.email! : "";
@@ -50,7 +50,13 @@ const Account = () => {
     }
   }, [email, getUser]);
 
-  console.log({ user });
+  useEffect(() => {
+    setValues({
+      phoneNumber: user?.phoneNumber,
+      sendText: user?.sendText,
+      sendEmail: user?.sendEmail,
+    });
+  }, [user]);
 
   return pageLoading ? (
     <Loader />
@@ -59,11 +65,7 @@ const Account = () => {
       <div className="mb-6">
         <h1>Account Settings</h1>
         <p>Email: {email}</p>
-        <AccountSettingForm
-          userId={user.id}
-          values={values}
-          setValues={setValues}
-        />
+        <AccountSettingForm setUser={setUser} user={user} />
       </div>
       <div className="mb-6">
         <MyLakes lakes={getUniqueLakeListById(user.lakes!)} />

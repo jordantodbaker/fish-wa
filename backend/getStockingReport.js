@@ -9,8 +9,6 @@ const { url, GetLakes, ConvertFishPerLb } = require("./utils/lake-scraping");
 const dotenv = require("dotenv");
 dotenv.config({ path: `../.env.local`, override: true });
 
-console.log("HOST: ", process.env.MYSQL_HOST);
-
 const config = {
   host: process.env.PLANETSCALE_DB_HOST,
   username: process.env.PLANETSCALE_DB_USERNAME,

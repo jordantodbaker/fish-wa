@@ -1,38 +1,44 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React, { useState, Dispatch, SetStateAction } from "react";
 import { Button, Checkbox, Input } from "@nextui-org/react";
 import {
   useUpdateUserMutation,
   UpdateUserValues,
+  User,
 } from "@/generated/graphql-frontend";
 
 interface Props {
-  userId: number;
-  values: UpdateUserValues;
-  setValues: Dispatch<SetStateAction<UpdateUserValues>>;
+  user: User;
+  setUser: Dispatch<SetStateAction<User | null>>;
 }
 
-const AccountSettingForm: React.FC<Props> = ({ userId, values, setValues }) => {
+const AccountSettingForm: React.FC<Props> = ({ user, setUser }) => {
   const [updateUser, { loading }] = useUpdateUserMutation();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("handlilng change");
-    const { name, value } = e.target;
-    setValues((prevValues) => ({ ...prevValues, [name]: value }));
+    const { value } = e.target;
+    setUser((prevUser) => ({ ...(prevUser as User), email: value }));
   };
+  const [phoneNumberError, setPhoneNumberError] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    try {
-      const result = await updateUser({
-        variables: {
-          input: {
-            userId,
-            phoneNumber: values.phoneNumber,
-            sendEmail: values.sendEmail,
-            sendText: values.sendText,
+    if (user.phoneNumber && user?.phoneNumber!.length === 10) {
+      try {
+        const result = await updateUser({
+          variables: {
+            input: {
+              userId: user.id,
+              phoneNumber: user.phoneNumber,
+              sendEmail: user.sendEmail,
+              sendText: user.sendText,
+            },
           },
-        },
-      });
-    } catch (e) {}
+        });
+      } catch (e) {}
+    } else {
+      setPhoneNumberError(
+        "Phone number must be 10 character long. Ex: 5551235555"
+      );
+    }
   };
 
   return (
@@ -44,18 +50,21 @@ const AccountSettingForm: React.FC<Props> = ({ userId, values, setValues }) => {
           name="phoneNumber"
           className="text-input"
           onChange={handleChange}
-          value={values.phoneNumber!}
+          value={user.phoneNumber!}
+          errorMessage={phoneNumberError}
+          startContent={<span className="mr-2">+1</span>}
         />
       </p>
       <p className="mt-4">
         <Checkbox
           onValueChange={(isSelected: boolean) =>
-            setValues((prevValues) => ({
-              ...prevValues,
+            setUser((prevUser) => ({
+              ...(prevUser as User),
               sendText: isSelected,
             }))
           }
           name="sendText"
+          isSelected={user.sendText!}
         >
           Sent Text Notifications
         </Checkbox>
@@ -63,12 +72,13 @@ const AccountSettingForm: React.FC<Props> = ({ userId, values, setValues }) => {
       <p className="mt-4">
         <Checkbox
           onValueChange={(isSelected: boolean) =>
-            setValues((prevValues) => ({
-              ...prevValues,
+            setUser((prevUser) => ({
+              ...(prevUser as User),
               sendEmail: isSelected,
             }))
           }
           name="sendEmail"
+          isSelected={user.sendEmail!}
         >
           Sent Email Notifications
         </Checkbox>

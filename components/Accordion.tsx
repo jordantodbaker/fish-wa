@@ -29,7 +29,7 @@ const AccordionItem: React.FC<Props> = ({
       setUser((prevUser) => {
         const currentCountyLakeIds = county.lakes.map(({ id }) => id);
         const prevUserLakes = prevUser?.lakes as Lake[];
-        console.log("Prev Lakes", prevUserLakes);
+
         const newLakes = prevUserLakes.filter(
           (prevLake) => !currentCountyLakeIds.includes(prevLake.id)
         );

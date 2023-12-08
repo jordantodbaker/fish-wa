@@ -14,8 +14,8 @@ interface ApolloContext {
 interface UserDbRow {
   id: number;
   email: string;
-  password: string;
-  salt: string;
+  sendText: boolean;
+  sendEmail: boolean;
   phoneNumber: string;
   lakeId: number;
   name: string;
@@ -38,7 +38,7 @@ export const resolvers: Resolvers<ApolloContext> = {
     user: async (parent, args, context) => {
       const { email } = args;
 
-      let query = `SELECT u.id, u.email, u.phoneNumber, ul.lakeId, l.name, sr.date, sr.number, sr.species, sr.size 
+      let query = `SELECT u.id, u.email, u.phoneNumber, u.sendText, u.sendEmail, ul.lakeId, l.name, sr.date, sr.number, sr.species, sr.size 
            FROM users u 
       LEFT JOIN usersLakes ul ON ul.userId  = u.id 
       LEFT JOIN  lakes l ON l.id = ul.lakeId
@@ -85,6 +85,8 @@ export const resolvers: Resolvers<ApolloContext> = {
         id: userResult[0].id,
         email: userResult[0].email,
         phoneNumber: userResult[0].phoneNumber,
+        sendText: userResult[0].sendText,
+        sendEmail: userResult[0].sendEmail,
         lakeIds: lakeIds,
         lakes: getUniqueLakeListById(lakes) as [Lake],
         stockingReports: stockingReports as [StockingReport],
