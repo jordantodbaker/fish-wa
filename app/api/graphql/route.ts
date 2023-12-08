@@ -4,9 +4,9 @@ import { schema } from "../../../backend/schema";
 import { connect } from "@planetscale/database";
 
 const config = {
-  host: process.env.PLANETSCALE_DB_HOST,
-  username: process.env.PLANETSCALE_DB_USERNAME,
-  password: process.env.PLANETSCALE_DB_PASSWORD,
+  host: process.env.DB_HOST,
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
 };
 
 const { handleRequest } = createYoga({
