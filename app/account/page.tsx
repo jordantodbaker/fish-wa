@@ -7,6 +7,7 @@ import {
   UpdateUserValues,
 } from "@/generated/graphql-frontend";
 import { useUser } from "@auth0/nextjs-auth0/client";
+import { getUniqueLakeListById } from "../utils/arrays";
 
 import {
   AccountSettingForm,
@@ -49,13 +50,7 @@ const Account = () => {
     }
   }, [email, getUser]);
 
-  const getUniqueListBy = (arr: Lake[] | any, key: any): Lake[] => {
-    return [
-      ...new Map(
-        arr.map((item: Lake) => [item[key as keyof typeof item], item])
-      ).values(),
-    ] as Lake[];
-  };
+  console.log({ user });
 
   return pageLoading ? (
     <Loader />
@@ -71,11 +66,11 @@ const Account = () => {
         />
       </div>
       <div className="mb-6">
-        <MyLakes lakes={getUniqueListBy(user.lakes!, "id")} />
+        <MyLakes lakes={getUniqueLakeListById(user.lakes!)} />
       </div>
       <div className="width-auto">
         <h1>Add Lakes To Your Subscription</h1>
-        {/* <LakesAccordion user={user} setUser={setUser} /> */}
+        <LakesAccordion user={user} setUser={setUser} />
       </div>
     </div>
   ) : (

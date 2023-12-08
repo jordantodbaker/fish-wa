@@ -1,3 +1,4 @@
+import AccordionItem from "./Accordion";
 import AccountSettingForm from "./AccountSettingsForm";
 import LakesAccordion from "./LakesAccordion";
 import Loader from "./Loader";
@@ -6,6 +7,7 @@ import Footer from "./Header";
 import MyLakes from "./MyLakes";
 import StockingReport from "./StockingReport";
 
+export { AccordionItem };
 export { AccountSettingForm };
 export { LakesAccordion };
 export { Loader };

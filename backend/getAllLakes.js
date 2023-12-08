@@ -1,19 +1,18 @@
 const axios = require("axios");
-const mysql = require("serverless-mysql");
+const ps = require("@planetscale/database");
 
 const { url, GetLakes } = require("./utils/lake-scraping");
 
 const dotenv = require("dotenv");
 dotenv.config({ path: `../.env.local`, override: true });
 
-const db = mysql({
-  config: {
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    database: process.env.MYSQL_DATABASE,
-    password: process.env.MYSQL_PASSWORD,
-  },
-});
+const config = {
+  host: process.env.PLANETSCALE_DB_HOST,
+  username: process.env.PLANETSCALE_DB_USERNAME,
+  password: process.env.PLANETSCALE_DB_PASSWORD,
+};
+
+const db = ps.connect(config);
 
 const pages = [0, 1, 2, 3, 4];
 
@@ -41,10 +40,10 @@ Promise.all(
     ).values(),
   ];
 
-  db.query("SELECT * FROM counties").then((result) => {
+  db.execute("SELECT * FROM counties").then((result) => {
     const mappedLakes = uniqueLakes
       .map((lake) => {
-        const countyId = result.reduce((acc, cur) => {
+        const countyId = result.rows.reduce((acc, cur) => {
           if (cur.name === lake.name.county) {
             acc = cur.id;
           }
@@ -61,14 +60,12 @@ Promise.all(
       });
 
     mappedLakes.forEach((lake) => {
-      db.query("INSERT INTO lakes (countyId, name) VALUES (?, ?);", [
+      db.execute("INSERT INTO lakes (countyId, name) VALUES (?, ?);", [
         lake.countyId,
         lake.name.name,
       ]);
     });
   });
-
-  db.end();
 });
 
 const getCountyId = (counties, lake) => {};

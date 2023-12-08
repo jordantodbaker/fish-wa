@@ -1,9 +1,11 @@
 "use client";
 import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
-import { Accordion, AccordionItem, Button } from "@nextui-org/react";
+import { Button } from "@nextui-org/react";
+import { AccordionItem } from "@/components";
 import {
   County,
   User,
+  Lake,
   StockingReport,
   useUpdateUserLakesMutation,
   useCountiesQuery,
@@ -21,40 +23,72 @@ const LakesAccordion: React.FC<Props> = ({ user, setUser }) => {
   const { data, loading: countiesLoading } = useCountiesQuery();
   const counties = data?.counties as [County];
 
-  // const [selectedKeys, setSelectedKeys] = useState<Set<string>>(
-  //   new Set([user.lakeIds].map((lake) => `${lake}`))
-  // );
+  const lakes = user?.lakes! as Lake[];
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(
+    new Set(lakes.map(({ id }) => `${id}`))
+  );
 
-  // const handleSubmit = async () => {
-  //   if (user.id) {
-  //     const lakeIds = Array.from(selectedKeys)
-  //       .map((key) => parseInt(key))
-  //       .filter((n) => n);
-  //     try {
-  //       setUser((prevUser) => {
-  //         return {
-  //           ...prevUser,
-  //           lakeIds: lakeIds,
-  //           stockingReports: prevUser?.stockingReports!.filter((report) =>
-  //             lakeIds.includes(report?.lakeId!)
-  //           ) as [StockingReport],
-  //         } as User;
-  //       });
-  //       await updateUserLakes({
-  //         variables: { input: { userId: user.id, lakeIds } },
-  //       });
-  //     } catch (e) {
-  //       console.log(e);
-  //     }
-  //   }
-  // };
+  const selectedCounties =
+    counties && counties.length > 0
+      ? counties.filter((county) => {
+          const ids = county.lakes.map(({ id }) => id);
+          return lakes.filter((lake) => ids.includes(lake.id)).length > 0;
+        })
+      : [];
+
+  const defaultSelected = selectedCounties.map((county) => `${county.id}`);
+
+  const handleSubmit = async () => {
+    if (user.id) {
+      console.log("Selected Keys: ", selectedKeys);
+      const lakeIds = Array.from(selectedKeys)
+        .map((key) => parseInt(key))
+        .filter((n) => n);
+      try {
+        setUser((prevUser) => {
+          const newReports =
+            typeof prevUser?.stockingReports !== "undefined" &&
+            prevUser?.stockingReports != null
+              ? (prevUser?.stockingReports.filter((report) =>
+                  lakeIds.includes(report?.lakeId!)
+                ) as [StockingReport])
+              : [];
+          const prevLakes = prevUser?.lakes as Lake[];
+          // console.log("Prev Lakes: ", prevLakes);
+          // console.log("Selected IDs: ", lakeIds);
+
+          const newLakes = counties
+            .map((county) => {
+              return county.lakes.filter((lake) => lakeIds.includes(lake.id));
+            })
+            .flat();
+          console.log("res", newLakes);
+          return {
+            ...prevUser,
+            lakes: newLakes,
+            stockingReports: newReports,
+          } as User;
+        });
+        await updateUserLakes({
+          variables: { input: { userId: user.id, lakeIds } },
+        });
+      } catch (e) {
+        console.log(e);
+      }
+      window.scrollTo(0, 0);
+    }
+  };
 
   useEffect(() => {
-    if (user.lakeIds) {
-      const selectedLakes = user.lakeIds.map((lake) => `${lake}`);
-      //setSelectedKeys(selectedLakes);
+    if (user.lakes) {
+      const lakes = user.lakes as Lake[];
+      const selectedLakes = new Set(lakes.map(({ id }) => `${id}`));
+      setSelectedKeys(selectedLakes);
     }
   }, [user.lakes]);
+
+  console.log("Selected Keys: ", selectedKeys);
+  console.log("User lakes", user?.lakes);
 
   return countiesLoading ? (
     <>Loading...</>
@@ -65,18 +99,25 @@ const LakesAccordion: React.FC<Props> = ({ user, setUser }) => {
         can be notified via email or text.
       </>
       <>
-        {/* <Accordion isCompact>
-          {counties &&
-            counties.map((county) => {
-              return (
-                <AccordionItem key={county.id} title={county.name}>
+        {counties &&
+          counties.map((county) => {
+            return (
+              <div>
+                <AccordionItem
+                  county={county}
+                  setUser={setUser}
+                  defaultExpanded={defaultSelected.includes(`${county.id}`)}
+                  defaultChecked={county.lakes.every(({ id, name }) => {
+                    return Array.from(selectedKeys).includes(`${id}`);
+                  })}
+                >
                   <Listbox
-                    aria-label="Multiple selection example"
+                    label={county.name}
                     variant="flat"
-                    disallowEmptySelection
+                    disallowEmptySelection={false}
                     selectionMode="multiple"
                     selectedKeys={selectedKeys}
-                    onSelectionChange={setSelectedKeys}
+                    onSelectionChange={setSelectedKeys as any}
                   >
                     {county.lakes.map((lake) => {
                       return (
@@ -85,10 +126,49 @@ const LakesAccordion: React.FC<Props> = ({ user, setUser }) => {
                     })}
                   </Listbox>
                 </AccordionItem>
+              </div>
+            );
+          })}
+        {/* <Accordion isCompact defaultExpandedKeys={defaultSelected}>
+          {counties &&
+            counties.map((county) => {
+              return (
+                <div>
+                  <AccordionItem
+                    isCompact
+                    key={county.id}
+                    title={county.name}
+                    startContent={
+                      <div
+                        onClick={(e) => {
+                          console.log("is clicked");
+                        }}
+                      >
+                        <input type="checkbox" />
+                      </div>
+                    }
+                  >
+                    <Listbox
+                      variant="flat"
+                      disallowEmptySelection={false}
+                      selectionMode="multiple"
+                      selectedKeys={selectedKeys}
+                      onSelectionChange={setSelectedKeys as any}
+                    >
+                      {county.lakes.map((lake) => {
+                        return (
+                          <ListboxItem key={lake.id}>{lake.name}</ListboxItem>
+                        );
+                      })}
+                    </Listbox>
+                  </AccordionItem>
+                </div>
               );
             })}
         </Accordion> */}
-        <Button disabled={loading}>Subscribe</Button>
+        <Button disabled={loading} onClick={handleSubmit}>
+          Subscribe
+        </Button>
       </>
     </>
   );

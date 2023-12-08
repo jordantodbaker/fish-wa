@@ -1,3 +1,4 @@
+import { getUniqueLakeListById } from "@/app/utils/arrays";
 import {
   Resolvers,
   Lake,
@@ -43,20 +44,10 @@ export const resolvers: Resolvers<ApolloContext> = {
       LEFT JOIN  lakes l ON l.id = ul.lakeId
       LEFT JOIN stockingReport sr ON sr.lakeId = l.id WHERE u.email = ?;`;
 
-      console.log("Pre result: ", email);
-      let result: ExecutedQuery;
-      try {
-        result = await context.db.execute(query, [email]);
-        console.log({ result });
-      } catch (e) {
-        console.log({ e });
-      }
+      let result: ExecutedQuery = await context.db.execute(query, [email]);
 
-      console.log("after result");
-
-      let userResult = [] as UserDbRow[];
+      let userResult = result.rows as UserDbRow[];
       if (userResult.length === 0) {
-        console.log("CREATING NEW USER");
         await context.db.execute(
           "INSERT INTO users (email, lastLogin, lastNotification) VALUES (?, NOW(), NOW());",
           [email]
@@ -67,6 +58,7 @@ export const resolvers: Resolvers<ApolloContext> = {
       const lakeIds = userResult
         .map((user: UserDbRow) => user.lakeId)
         .filter(Number);
+
       const lakes: (Lake | undefined)[] = userResult
         .map((user: UserDbRow) => {
           if (user.lakeId) {
@@ -74,6 +66,7 @@ export const resolvers: Resolvers<ApolloContext> = {
           }
         })
         .filter((n) => n);
+
       const stockingReports = userResult
         .map((user) => {
           if (user.name) {
@@ -93,14 +86,14 @@ export const resolvers: Resolvers<ApolloContext> = {
         email: userResult[0].email,
         phoneNumber: userResult[0].phoneNumber,
         lakeIds: lakeIds,
-        lakes: lakes as [Lake],
+        lakes: getUniqueLakeListById(lakes) as [Lake],
         stockingReports: stockingReports as [StockingReport],
       };
       return user;
     },
     counties: async (parent, args, context) => {
       const counties: ExecutedQuery = await context.db.execute(
-        "SELECT c.id, c.name, c.shortName, l.name as lakeName, l.id as lakeId FROM counties c INNER JOIN lakes l ON l.countyId = c.id;"
+        "SELECT c.id, c.name, c.shortName, l.name as lakeName, l.id as lakeId FROM counties c INNER JOIN lakes l ON l.countyId = c.id ORDER BY c.name, l.name ASC;"
       );
       let lakes = [] as any;
       let prevCounty = counties.rows[0] as CountyDbRow;
@@ -138,12 +131,12 @@ export const resolvers: Resolvers<ApolloContext> = {
   Mutation: {
     updateUserLakes: async (parent, args, context) => {
       const { userId, lakeIds } = args.input;
-      console.log({ userId });
-      console.log({ lakeIds });
-      context.db.execute("DELETE FROM usersLakes WHERE userId = ?", [userId]);
+      await context.db.execute("DELETE FROM usersLakes WHERE userId = ?", [
+        userId,
+      ]);
       const sql = "INSERT INTO usersLakes (userId, lakeId) VALUES (?, ?)";
-      lakeIds.forEach((lakeId) => {
-        context.db.execute(sql, [userId, lakeId]);
+      lakeIds.forEach(async (lakeId) => {
+        await context.db.execute(sql, [userId, lakeId]);
       });
 
       const userLakes: UserLakes = { userLakes: [] };

@@ -17,8 +17,6 @@ export default function Home() {
     router.push("/api/auth/login");
   }
 
-  console.log("WTF");
-
   const { data: userData, loading: userLoading } = useUserQuery({
     variables: { email: authUser?.email! },
   });
@@ -31,18 +29,17 @@ export default function Home() {
     }
   }, [userLoading, userData?.user]);
 
-  console.log({ user });
-
   return isLoading || userLoading ? (
     <Loader />
   ) : user ? (
     <main className="flex min-h-screen flex-col items-center p-24">
-      {user.stockingReports!.length > 0 && (
+      {user.stockingReports!.length > 0 ? (
         <StockingReport
           stockingReports={user.stockingReports! as [StockingReportType]}
         />
+      ) : (
+        <LakesAccordion user={user} setUser={setUser} />
       )}
-      {/* <LakesAccordion user={user} setUser={setUser} /> */}
     </main>
   ) : (
     <>Error</>

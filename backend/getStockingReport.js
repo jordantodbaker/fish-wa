@@ -2,6 +2,7 @@ const axios = require("axios");
 const mysql = require("serverless-mysql");
 //const smsClient = require("../lib/sms-provider.js");
 const schedule = require("node-schedule");
+const ps = require("@planetscale/database");
 
 const { url, GetLakes, ConvertFishPerLb } = require("./utils/lake-scraping");
 
@@ -10,14 +11,13 @@ dotenv.config({ path: `../.env.local`, override: true });
 
 console.log("HOST: ", process.env.MYSQL_HOST);
 
-const db = mysql({
-  config: {
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    database: process.env.MYSQL_DATABASE,
-    password: process.env.MYSQL_PASSWORD,
-  },
-});
+const config = {
+  host: process.env.PLANETSCALE_DB_HOST,
+  username: process.env.PLANETSCALE_DB_USERNAME,
+  password: process.env.PLANETSCALE_DB_PASSWORD,
+};
+
+const db = ps.connect(config);
 
 const GetNewReports = (lastReport, scrapedReports) => {
   let newReports = [];
@@ -47,7 +47,7 @@ const GetMessage = (notifications) => {
 const SendNotifications = (notifications) => {
   notifications.forEach((notification) => {
     const message = GetMessage(notification.notifications);
-    db.query("UPDATE users SET lastNotification = NOW() WHERE id = ?", [
+    db.execute("UPDATE users SET lastNotification = NOW() WHERE id = ?", [
       notification.userId,
     ]);
 
@@ -68,13 +68,14 @@ const GetNotifications = () => {
            INNER JOIN lakes l ON l.id = ul.lakeID 
            INNER JOIN stockingReport sr ON sr.lakeId = l.id 
                 WHERE sr.date > u.lastNotification`;
-  db.query(sql)
+  db.execute(sql)
     .then((result) => {
+      console.log({ result });
       let allNotifcations = [];
-      if (result.length > 0) {
+      if (result.rows.length > 0) {
         let notifications = [];
-        let lastUser = result[0];
-        allNotifcations = result.reduce((acc, curr, idx) => {
+        let lastUser = result.rows[0];
+        allNotifcations = result.rows.reduce((acc, curr, idx) => {
           if (lastUser.id !== curr.id) {
             acc.push({
               userId: lastUser.id,
@@ -89,7 +90,7 @@ const GetNotifications = () => {
               species: curr.species,
               size: curr.size,
             });
-          } else if (idx === result.length - 1) {
+          } else if (idx === result.rows.length - 1) {
             notifications.push({
               name: curr.name,
               date: curr.date,
@@ -118,7 +119,7 @@ const GetNotifications = () => {
       return allNotifcations;
     })
     .then((result) => {
-      console.log({ result });
+      //console.log({ result });
       if (result.length > 0) {
         SendNotifications(result);
       } else {
@@ -142,29 +143,28 @@ axios
   .then((result) => {
     const lakes = result;
     // Test empty case again
-    db.query("SELECT date FROM stockingReport ORDER BY date DESC LIMIT 1").then(
-      (result) => {
-        const newReports = GetNewReports(result, lakes);
-        console.log({ newReports });
-        Promise.all(
-          newReports.map((report) => {
-            return db.query(
-              "INSERT INTO stockingReport (lakeId, date, number, size, species) SELECT l.id, ?, ?, ?, ? FROM lakes l WHERE l.name = ?",
-              [
-                new Date(report.stockDate)
-                  .toISOString()
-                  .slice(0, 19)
-                  .replace("T", " "),
-                parseInt(report.number.replace(",", "")),
-                parseFloat(report.fishPerLb),
-                report.species,
-                report.name.name,
-              ]
-            );
-          })
-        ).then(GetNotifications());
-      }
-    );
-    db.end();
+    db.execute(
+      "SELECT date FROM stockingReport ORDER BY date DESC LIMIT 1"
+    ).then((result) => {
+      const newReports = GetNewReports(result.rows, lakes);
+      console.log({ newReports });
+      Promise.all(
+        newReports.map((report) => {
+          return db.execute(
+            "INSERT INTO stockingReport (lakeId, date, number, size, species) SELECT l.id, ?, ?, ?, ? FROM lakes l WHERE l.name = ?",
+            [
+              new Date(report.stockDate)
+                .toISOString()
+                .slice(0, 19)
+                .replace("T", " "),
+              parseInt(report.number.replace(",", "")),
+              parseFloat(report.fishPerLb),
+              report.species,
+              report.name.name,
+            ]
+          );
+        })
+      ).then(GetNotifications());
+    });
   });
 // });
