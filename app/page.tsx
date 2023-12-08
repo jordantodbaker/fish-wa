@@ -32,7 +32,7 @@ export default function Home() {
   return isLoading || userLoading ? (
     <Loader />
   ) : user ? (
-    <main className="flex min-h-screen flex-col items-center p-24">
+    <main className="flex min-h-screen flex-col p-24">
       {user.stockingReports!.length > 0 ? (
         <StockingReport
           stockingReports={user.stockingReports! as [StockingReportType]}
