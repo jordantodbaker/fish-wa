@@ -13,6 +13,7 @@ function makeClient() {
     ? "http://localhost:3000/api/graphql"
     : "https://fish-wa.vercel.app/api/graphql";
 
+  console.log("THE URI IS: ", uri);
   const httpLink = new HttpLink({
     uri: uri,
   });
