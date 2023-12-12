@@ -9,6 +9,7 @@ import {
   useUserQuery,
 } from "../../generated/graphql-frontend";
 import Header from "@/components/Header";
+import { getUniqueLakeListById } from "../utils/arrays";
 
 export default function Home() {
   const router = useRouter();
@@ -38,7 +39,9 @@ export default function Home() {
     <>
       <Header />
       <main className="flex min-h-screen flex-col p-24">
-        {user.lakes!.length > 0 && <MyLakes lakes={user.lakes!} />}
+        {user.lakes!.length > 0 && (
+          <MyLakes lakes={getUniqueLakeListById(user.lakes!)} />
+        )}
         {user.stockingReports!.length > 0 && (
           <StockingReport
             stockingReports={user.stockingReports! as [StockingReportType]}
