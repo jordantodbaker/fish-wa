@@ -47,7 +47,7 @@ export default function Home() {
         {user.lakes!.length == 0 && (
           <>
             <div>
-              <h1>You're not subscribed to any lakes yet</h1>
+              <h1>You&apos;re not subscribed to any lakes yet</h1>
             </div>
             <LakesAccordion user={user} setUser={setUser} />
           </>
