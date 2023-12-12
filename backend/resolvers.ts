@@ -77,10 +77,13 @@ export const resolvers: Resolvers<ApolloContext> = {
               number: user.number,
               species: user.species,
               size: user.size,
-            };
+            } as StockingReport;
           }
         })
-        .filter((n) => n && n.date);
+        .filter((n) => n && n.date)
+        .sort((a, b) => {
+          return new Date(b?.date!).getTime() - new Date(a?.date!).getTime();
+        });
       const user = {
         id: userResult[0].id,
         email: userResult[0].email,

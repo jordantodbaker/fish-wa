@@ -11,6 +11,7 @@ import {
   useCountiesQuery,
 } from "@/generated/graphql-frontend";
 import { Listbox, ListboxItem } from "@nextui-org/react";
+import FormatLakeName from "@/app/utils/strings";
 
 interface Props {
   user: User;
@@ -90,7 +91,7 @@ const LakesAccordion: React.FC<Props> = ({ user, setUser }) => {
         Select lakes by county to subscribe to them. When lakes are stocked you
         can be notified via email or text.
       </>
-      <>
+      <div className="mt-8">
         {counties &&
           counties.map((county) => {
             return (
@@ -113,7 +114,9 @@ const LakesAccordion: React.FC<Props> = ({ user, setUser }) => {
                   >
                     {county.lakes.map((lake) => {
                       return (
-                        <ListboxItem key={lake.id}>{lake.name}</ListboxItem>
+                        <ListboxItem key={lake.id}>
+                          {FormatLakeName(lake.name!)}
+                        </ListboxItem>
                       );
                     })}
                   </Listbox>
@@ -121,10 +124,15 @@ const LakesAccordion: React.FC<Props> = ({ user, setUser }) => {
               </div>
             );
           })}
-        <Button disabled={loading} onClick={handleSubmit}>
+        <Button
+          className="mt-4"
+          disabled={loading}
+          color="primary"
+          onClick={handleSubmit}
+        >
           Subscribe
         </Button>
-      </>
+      </div>
     </>
   );
 };

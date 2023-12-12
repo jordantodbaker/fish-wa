@@ -84,7 +84,7 @@ const AccountSettingForm: React.FC<Props> = ({ user, setUser }) => {
         </Checkbox>
       </p>
       <p className="mt-6">
-        <Button className="button" type="submit">
+        <Button className="button" color="primary" type="submit">
           Save
         </Button>
       </p>

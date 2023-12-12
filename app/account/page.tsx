@@ -16,6 +16,7 @@ import {
   MyLakes,
 } from "@/components";
 import { useRouter } from "next/navigation";
+import Header from "@/components/Header";
 
 const Account = () => {
   const { user: authUser, error, isLoading } = useUser();
@@ -61,20 +62,23 @@ const Account = () => {
   return pageLoading ? (
     <Loader />
   ) : user && user ? (
-    <div className="flex min-h-screen flex-col items-center p-24">
-      <div className="mb-6">
-        <h1>Account Settings</h1>
-        <p>Email: {email}</p>
-        <AccountSettingForm setUser={setUser} user={user} />
+    <>
+      <Header />
+      <div className="flex min-h-screen flex-col  p-24">
+        <div className="mb-6">
+          <h1>Account Settings</h1>
+          <p>Email: {email}</p>
+          <AccountSettingForm setUser={setUser} user={user} />
+        </div>
+        <div className="mb-6">
+          <MyLakes lakes={getUniqueLakeListById(user.lakes!)} />
+        </div>
+        <div className="width-auto">
+          <h1>Add Lakes To Your Subscription</h1>
+          <LakesAccordion user={user} setUser={setUser} />
+        </div>
       </div>
-      <div className="mb-6">
-        <MyLakes lakes={getUniqueLakeListById(user.lakes!)} />
-      </div>
-      <div className="width-auto">
-        <h1>Add Lakes To Your Subscription</h1>
-        <LakesAccordion user={user} setUser={setUser} />
-      </div>
-    </div>
+    </>
   ) : (
     <></>
   );

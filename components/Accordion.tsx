@@ -41,7 +41,7 @@ const AccordionItem: React.FC<Props> = ({
     }
   };
   return (
-    <div className="h-full">
+    <div className="h-full w-3/4">
       <div className="flex flex-row items-center cursor-pointer">
         <div>
           <Checkbox
@@ -50,6 +50,7 @@ const AccordionItem: React.FC<Props> = ({
           />
         </div>
         <div
+          className="hover:bg-blue-50 w-full"
           onClick={() => {
             setIsExpanded(!isExpanded);
           }}

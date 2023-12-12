@@ -4,9 +4,9 @@ import Image from "next/image";
 
 const Header = () => {
   return (
-    <div className="flex justify-between items-center h-16 border-solid border-b-2 border-black">
+    <div className="flex justify-between items-center h-16 border-solid border-b-1 border-black">
       <div>
-        <Link href="/">
+        <Link href="/home">
           <Image
             src="/to-the-moon-logo.png"
             alt="home"

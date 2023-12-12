@@ -1,47 +1,39 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { LakesAccordion, Loader, StockingReport } from "@/components";
-import { useUser } from "@auth0/nextjs-auth0/client";
-import {
-  StockingReport as StockingReportType,
-  User,
-  useUserQuery,
-} from "../generated/graphql-frontend";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@nextui-org/react";
 
 export default function Home() {
   const router = useRouter();
-  const { user: authUser, error, isLoading } = useUser();
 
-  if (!isLoading && !authUser) {
-    router.push("/api/auth/login");
-  }
-
-  const { data: userData, loading: userLoading } = useUserQuery({
-    variables: { email: authUser?.email! },
-  });
-
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    if (!userLoading) {
-      setUser(userData?.user!);
-    }
-  }, [userLoading, userData?.user]);
-
-  return isLoading || userLoading ? (
-    <Loader />
-  ) : user ? (
-    <main className="flex min-h-screen flex-col p-24">
-      {user.stockingReports!.length > 0 ? (
-        <StockingReport
-          stockingReports={user.stockingReports! as [StockingReportType]}
-        />
-      ) : (
-        <LakesAccordion user={user} setUser={setUser} />
-      )}
+  return (
+    <main className=" min-h-screen p-24">
+      <div className="text-center">
+        <center>
+          <Image
+            src="/to-the-moon-logo.png"
+            alt="home"
+            width={300}
+            height={300}
+          />
+        </center>
+        <h1 className="align">To The Moon Fishing</h1>
+        <h2>
+          Get stocking reports sent to your phone the day the day your lake is
+          stocked
+        </h2>
+        <p className="mt-4">
+          Subscribe to lakes in your local area. With notifications enabled, you
+          can recieve a text or email when those lakes have been stocked.
+        </p>
+        <div className="mt-4">
+          <Link href="/api/auth/login">
+            <Button color="primary">Login / Create Account</Button>
+          </Link>
+        </div>
+      </div>
     </main>
-  ) : (
-    <>Error</>
   );
 }
