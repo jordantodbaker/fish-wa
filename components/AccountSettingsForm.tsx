@@ -46,9 +46,10 @@ const AccountSettingForm: React.FC<Props> = ({ user, setUser }) => {
       <p>
         <label className="field-label">Phone Number</label>
         <Input
+          size="sm"
           type="number"
           name="phoneNumber"
-          className="text-input"
+          className="text-input w-40"
           onChange={handleChange}
           value={user.phoneNumber!}
           errorMessage={phoneNumberError}
