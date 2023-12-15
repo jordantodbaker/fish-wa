@@ -1,5 +1,24 @@
 mutation UpdateUserLakes($input: UpdateUserLakesInput!) {
   updateUserLakes(input: $input) {
-    userLakes
+    id
+    email
+    phoneNumber
+    lastLogin
+    lastNotification
+    sendText
+    sendEmail
+    lakes {
+      id
+      name
+    }
+    lakeIds
+    stockingReports {
+      lakeId
+      name
+      date
+      number
+      species
+      size
+    }
   }
 }

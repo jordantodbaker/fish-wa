@@ -40,21 +40,24 @@ export default function Home() {
       <Header />
       <main className="flex min-h-screen flex-col p-24">
         {user.lakes!.length > 0 && (
-          <MyLakes lakes={getUniqueLakeListById(user.lakes!)} />
+          <div className="mb-4">
+            <MyLakes lakes={getUniqueLakeListById(user.lakes!)} />
+          </div>
         )}
         {user.stockingReports!.length > 0 && (
           <StockingReport
             stockingReports={user.stockingReports! as [StockingReportType]}
           />
         )}
-        {user.lakes!.length == 0 && (
-          <>
+
+        <>
+          {user.lakes!.length == 0 && (
             <div>
-              <h1>You&apos;re not subscribed to any lakes yet</h1>
+              <h1>Lets get started!</h1>
             </div>
-            <LakesAccordion user={user} setUser={setUser} />
-          </>
-        )}
+          )}
+          <LakesAccordion user={user} setUser={setUser} />
+        </>
       </main>
     </>
   ) : (

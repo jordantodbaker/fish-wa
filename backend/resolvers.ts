@@ -33,68 +33,71 @@ interface CountyDbRow {
   lakeId: string;
 }
 
+const GetUserByEmail = async (email: string | undefined, db: Connection) => {
+  let query = `SELECT u.id, u.email, u.phoneNumber, u.sendText, u.sendEmail, ul.lakeId, l.name, sr.date, sr.number, sr.species, sr.size 
+  FROM users u 
+LEFT JOIN usersLakes ul ON ul.userId  = u.id 
+LEFT JOIN  lakes l ON l.id = ul.lakeId
+LEFT JOIN stockingReport sr ON sr.lakeId = l.id WHERE u.email = ?;`;
+
+  let result: ExecutedQuery = await db.execute(query, [email]);
+
+  let userResult = result.rows as UserDbRow[];
+  if (userResult.length === 0) {
+    await db.execute(
+      "INSERT INTO users (email, lastLogin, lastNotification) VALUES (?, NOW(), NOW());",
+      [email]
+    );
+    result = await db.execute(query, [email]);
+    userResult = result.rows as UserDbRow[];
+  }
+  const lakeIds = userResult
+    .map((user: UserDbRow) => user.lakeId)
+    .filter(Number);
+
+  const lakes: (Lake | undefined)[] = userResult
+    .map((user: UserDbRow) => {
+      if (user.lakeId) {
+        return { id: user.lakeId, name: user.name } as Lake;
+      }
+    })
+    .filter((n) => n);
+
+  const stockingReports = userResult
+    .map((user) => {
+      if (user.name) {
+        return {
+          lakeId: user.lakeId,
+          name: user.name,
+          date: user.date,
+          number: user.number,
+          species: user.species,
+          size: user.size,
+        } as StockingReport;
+      }
+    })
+    .filter((n) => n && n.date)
+    .sort((a, b) => {
+      return new Date(b?.date!).getTime() - new Date(a?.date!).getTime();
+    });
+  const user = {
+    id: userResult[0].id,
+    email: userResult[0].email,
+    phoneNumber: userResult[0].phoneNumber,
+    sendText: userResult[0].sendText,
+    sendEmail: userResult[0].sendEmail,
+    lakeIds: lakeIds,
+    lakes: getUniqueLakeListById(lakes) as [Lake],
+    stockingReports: stockingReports as [StockingReport],
+  };
+  return user;
+};
+
 export const resolvers: Resolvers<ApolloContext> = {
   Query: {
     user: async (parent, args, context) => {
       const { email } = args;
-
-      let query = `SELECT u.id, u.email, u.phoneNumber, u.sendText, u.sendEmail, ul.lakeId, l.name, sr.date, sr.number, sr.species, sr.size 
-           FROM users u 
-      LEFT JOIN usersLakes ul ON ul.userId  = u.id 
-      LEFT JOIN  lakes l ON l.id = ul.lakeId
-      LEFT JOIN stockingReport sr ON sr.lakeId = l.id WHERE u.email = ?;`;
-
-      let result: ExecutedQuery = await context.db.execute(query, [email]);
-
-      let userResult = result.rows as UserDbRow[];
-      if (userResult.length === 0) {
-        await context.db.execute(
-          "INSERT INTO users (email, lastLogin, lastNotification) VALUES (?, NOW(), NOW());",
-          [email]
-        );
-        result = await context.db.execute(query, [email]);
-        userResult = result.rows as UserDbRow[];
-      }
-      const lakeIds = userResult
-        .map((user: UserDbRow) => user.lakeId)
-        .filter(Number);
-
-      const lakes: (Lake | undefined)[] = userResult
-        .map((user: UserDbRow) => {
-          if (user.lakeId) {
-            return { id: user.lakeId, name: user.name } as Lake;
-          }
-        })
-        .filter((n) => n);
-
-      const stockingReports = userResult
-        .map((user) => {
-          if (user.name) {
-            return {
-              lakeId: user.lakeId,
-              name: user.name,
-              date: user.date,
-              number: user.number,
-              species: user.species,
-              size: user.size,
-            } as StockingReport;
-          }
-        })
-        .filter((n) => n && n.date)
-        .sort((a, b) => {
-          return new Date(b?.date!).getTime() - new Date(a?.date!).getTime();
-        });
-      const user = {
-        id: userResult[0].id,
-        email: userResult[0].email,
-        phoneNumber: userResult[0].phoneNumber,
-        sendText: userResult[0].sendText,
-        sendEmail: userResult[0].sendEmail,
-        lakeIds: lakeIds,
-        lakes: getUniqueLakeListById(lakes) as [Lake],
-        stockingReports: stockingReports as [StockingReport],
-      };
-      return user;
+      return await GetUserByEmail(email as string, context.db);
     },
     counties: async (parent, args, context) => {
       const counties: ExecutedQuery = await context.db.execute(
@@ -144,8 +147,13 @@ export const resolvers: Resolvers<ApolloContext> = {
         await context.db.execute(sql, [userId, lakeId]);
       });
 
-      const userLakes: UserLakes = { userLakes: [] };
-      return userLakes;
+      const result = await context.db.execute(
+        "SELECT email FROM users WHERE id = ?",
+        [userId]
+      );
+      const row = result.rows[0] as UserDbRow;
+
+      return GetUserByEmail(row.email, context.db);
     },
     updateUser: async (parent, args, context) => {
       const { userId, phoneNumber, sendText, sendEmail } = args.input;

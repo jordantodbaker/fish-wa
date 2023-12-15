@@ -49,7 +49,7 @@ export type Lake = {
 export type Mutation = {
   __typename?: 'Mutation';
   updateUser?: Maybe<Scalars['Int']['output']>;
-  updateUserLakes?: Maybe<UserLakes>;
+  updateUserLakes?: Maybe<User>;
 };
 
 
@@ -131,7 +131,7 @@ export type UpdateUserLakesMutationVariables = Exact<{
 }>;
 
 
-export type UpdateUserLakesMutation = { __typename?: 'Mutation', updateUserLakes?: { __typename?: 'UserLakes', userLakes: Array<number | null> } | null };
+export type UpdateUserLakesMutation = { __typename?: 'Mutation', updateUserLakes?: { __typename?: 'User', id: number, email: string, phoneNumber?: string | null, lastLogin?: string | null, lastNotification?: string | null, sendText?: boolean | null, sendEmail?: boolean | null, lakeIds?: Array<number | null> | null, lakes?: Array<{ __typename?: 'Lake', id: number, name?: string | null } | null> | null, stockingReports?: Array<{ __typename?: 'StockingReport', lakeId?: number | null, name?: string | null, date?: string | null, number?: number | null, species?: string | null, size?: number | null } | null> | null } | null };
 
 export type UpdateUserMutationVariables = Exact<{
   input: UpdateUserInput;
@@ -196,7 +196,26 @@ export type CountiesQueryResult = Apollo.QueryResult<CountiesQuery, CountiesQuer
 export const UpdateUserLakesDocument = gql`
     mutation UpdateUserLakes($input: UpdateUserLakesInput!) {
   updateUserLakes(input: $input) {
-    userLakes
+    id
+    email
+    phoneNumber
+    lastLogin
+    lastNotification
+    sendText
+    sendEmail
+    lakes {
+      id
+      name
+    }
+    lakeIds
+    stockingReports {
+      lakeId
+      name
+      date
+      number
+      species
+      size
+    }
   }
 }
     `;

@@ -48,7 +48,7 @@ export type Lake = {
 export type Mutation = {
   __typename?: 'Mutation';
   updateUser?: Maybe<Scalars['Int']['output']>;
-  updateUserLakes?: Maybe<UserLakes>;
+  updateUserLakes?: Maybe<User>;
 };
 
 
@@ -258,7 +258,7 @@ export type LakeResolvers<ContextType = any, ParentType extends ResolversParentT
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   updateUser?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'input'>>;
-  updateUserLakes?: Resolver<Maybe<ResolversTypes['UserLakes']>, ParentType, ContextType, RequireFields<MutationUpdateUserLakesArgs, 'input'>>;
+  updateUserLakes?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationUpdateUserLakesArgs, 'input'>>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {

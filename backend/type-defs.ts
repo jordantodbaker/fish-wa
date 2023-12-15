@@ -77,7 +77,7 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    updateUserLakes(input: UpdateUserLakesInput!): UserLakes
+    updateUserLakes(input: UpdateUserLakesInput!): User
     updateUser(input: UpdateUserInput!): Int
   }
 `;

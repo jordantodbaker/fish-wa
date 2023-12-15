@@ -8,6 +8,7 @@ interface Props {
   children: React.ReactNode;
   county: County;
   setUser: Dispatch<SetStateAction<User | null>>;
+  setSelectedKeys: Dispatch<SetStateAction<Set<string>>>;
 }
 
 const AccordionItem: React.FC<Props> = ({
@@ -16,27 +17,19 @@ const AccordionItem: React.FC<Props> = ({
   children,
   county,
   setUser,
+  setSelectedKeys,
 }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(defaultExpanded);
   const onClickCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsExpanded(true);
+    const countyKeys = county.lakes.map(({ id }) => `${id}`);
     if (e.target.checked) {
-      setUser((prevUser) => {
-        const prevLakes = prevUser?.lakes as Lake[];
-        return { ...prevUser!, lakes: [...prevLakes, ...county.lakes] };
+      setSelectedKeys((prev) => {
+        return new Set([...prev, ...countyKeys]);
       });
     } else {
-      setUser((prevUser) => {
-        const currentCountyLakeIds = county.lakes.map(({ id }) => id);
-        const prevUserLakes = prevUser?.lakes as Lake[];
-
-        const newLakes = prevUserLakes.filter(
-          (prevLake) => !currentCountyLakeIds.includes(prevLake.id)
-        );
-        return {
-          ...prevUser!,
-          lakes: newLakes,
-        };
+      setSelectedKeys((prev) => {
+        return new Set([...prev].filter((id) => !countyKeys.includes(id)));
       });
     }
   };

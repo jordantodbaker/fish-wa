@@ -8,10 +8,12 @@ import {
   Lake,
   StockingReport,
   useUpdateUserLakesMutation,
+  useUserLazyQuery,
   useCountiesQuery,
 } from "@/generated/graphql-frontend";
 import { Listbox, ListboxItem } from "@nextui-org/react";
 import FormatLakeName from "@/app/utils/strings";
+import { useRouter } from "next/navigation";
 
 interface Props {
   user: User;
@@ -20,9 +22,17 @@ interface Props {
 
 const LakesAccordion: React.FC<Props> = ({ user, setUser }) => {
   const [updateUserLakes, { loading }] = useUpdateUserLakesMutation();
+  const router = useRouter();
 
   const { data, loading: countiesLoading } = useCountiesQuery();
   const counties = data?.counties as [County];
+
+  const [getUser, { data: userData, loading: userLoading }] = useUserLazyQuery({
+    variables: { email: user.email },
+    onCompleted: (data) => {
+      setUser(data?.user!);
+    },
+  });
 
   const lakes = user?.lakes! as Lake[];
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(
@@ -45,28 +55,11 @@ const LakesAccordion: React.FC<Props> = ({ user, setUser }) => {
         .map((key) => parseInt(key))
         .filter((n) => n);
       try {
-        setUser((prevUser) => {
-          const newReports =
-            typeof prevUser?.stockingReports !== "undefined" &&
-            prevUser?.stockingReports != null
-              ? (prevUser?.stockingReports.filter((report) =>
-                  lakeIds.includes(report?.lakeId!)
-                ) as [StockingReport])
-              : [];
-
-          const newLakes = counties
-            .map((county) => {
-              return county.lakes.filter((lake) => lakeIds.includes(lake.id));
-            })
-            .flat();
-          return {
-            ...prevUser,
-            lakes: newLakes,
-            stockingReports: newReports,
-          } as User;
-        });
         await updateUserLakes({
           variables: { input: { userId: user.id, lakeIds } },
+          onCompleted: ({ updateUserLakes }) => {
+            setUser(updateUserLakes as User);
+          },
         });
       } catch (e) {
         console.log(e);
@@ -87,10 +80,12 @@ const LakesAccordion: React.FC<Props> = ({ user, setUser }) => {
     <>Loading...</>
   ) : (
     <>
-      <>
-        Select lakes by county to subscribe to them. When lakes are stocked you
-        can be notified via email or text.
-      </>
+      <div>
+        <h2>
+          Select lakes by county to subscribe to them. When lakes are stocked
+          you can be notified via email or text.
+        </h2>
+      </div>
       <div className="mt-8">
         {counties &&
           counties.map((county) => {
@@ -99,6 +94,7 @@ const LakesAccordion: React.FC<Props> = ({ user, setUser }) => {
                 <AccordionItem
                   county={county}
                   setUser={setUser}
+                  setSelectedKeys={setSelectedKeys}
                   defaultExpanded={defaultSelected.includes(`${county.id}`)}
                   defaultChecked={county.lakes.every(({ id, name }) => {
                     return Array.from(selectedKeys).includes(`${id}`);
