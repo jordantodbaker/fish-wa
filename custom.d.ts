@@ -8,5 +8,7 @@ declare namespace NodeJS {
     AUTH0_CLIENT_ID: string;
     AUTH0_CLIENT_SECRET: string;
     CRON_SECRET: string;
+    IS_DEV: string;
+    TWILIO_PHONE_NUMBER: string;
   }
 }
